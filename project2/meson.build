@@ -6,6 +6,9 @@ cxx = meson.get_compiler('c')
 
 src = [
 	'src/main.c',
+	'src/reader/reader.c',
+	'src/reader/metareader.c',
+	'src/michaellib/string.c',
 ]
 
 executable('out', src)
