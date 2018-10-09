@@ -3,10 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct String {
+struct String {
     size_t len;
     char* buf;
-} String;
+};
 
 String* string_new() {
     String* str = malloc(sizeof(String));

@@ -5,6 +5,7 @@
 typedef struct Document {
     char* url;
     char* doc;
+    int docsize;
 } Document;
 
 typedef struct Reader Reader;

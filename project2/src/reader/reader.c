@@ -6,10 +6,10 @@
 #include "michaellib/string.h"
 #include "metareader.h"
 
-typedef struct Reader {
+struct Reader {
     FILE* fp;
     int status;
-} Reader;
+};
 
 Reader* reader_new(FILE* fp) {
     Reader* newreader = malloc(sizeof(Reader));
@@ -38,13 +38,13 @@ Reader* reader_new(FILE* fp) {
 
 Document reader_getDocument(Reader* reader) {
     if(reader->status != 0)
-        return (Document) {"", ""};
+        return (Document) {NULL, NULL, -1};
 
     //Read metadata
     ReaderMetadata metadata;
     int err = reader_readMetadata(&metadata, reader->fp);
     if(err)
-        return (Document) {"", ""};
+        return (Document) {NULL, NULL, -1};
 
     //Read document
     int docsize = strtol(metadata.Content_Length, NULL, 10);
@@ -57,7 +57,9 @@ Document reader_getDocument(Reader* reader) {
 
     size_t urllen = strlen(metadata.WARC_Target_URI);
     doc.url = malloc(urllen+1);
-    strncpy(doc.url, metadata.WARC_Target_URI, urllen);
+    strncpy(doc.url, metadata.WARC_Target_URI, urllen + 1);
+
+    doc.docsize = docsize;
 
     //Read lines until "WARC/1.0\r\n" is found
     char* line = NULL;

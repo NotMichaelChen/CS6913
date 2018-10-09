@@ -6,8 +6,9 @@ cxx = meson.get_compiler('c')
 
 src = [
 	'src/main.c',
-	'src/reader/reader.c',
+	'src/reader/dirreader.c',
 	'src/reader/metareader.c',
+	'src/reader/reader.c',
 	'src/michaellib/string.c',
 ]
 
