@@ -57,10 +57,12 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
             break;
         }
         else {
+            free(line);
             return 2;
         }
     }
 
+    free(line);
     if(read < 0)
         return 3;
     

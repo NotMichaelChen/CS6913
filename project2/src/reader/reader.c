@@ -66,6 +66,7 @@ Document reader_getDocument(Reader* reader) {
         if(!strcmp(line, "WARC/1.0\r\n"))
             break;
     }
+    free(line);
 
     reader_freeMetadata(&metadata);
 
@@ -79,4 +80,9 @@ int reader_getStatus(Reader* reader) {
 void reader_free(Reader* reader) {
     // We have no responsibilites for the file pointer
     free(reader);
+}
+
+void reader_freedoc(Document* doc) {
+    free(doc->doc);
+    free(doc->url);
 }

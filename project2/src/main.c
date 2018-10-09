@@ -11,9 +11,14 @@ int main (int argc, char *argv[]) {
     Reader* reader = reader_new(fp);
     printf("%d\n", reader_getStatus(reader));
     Document doc = reader_getDocument(reader);
+    //TODO: Figure out how to avoid this when reading new docs?
+    reader_freedoc(&doc);
     doc = reader_getDocument(reader);
     printf("%s %s\n", doc.url, doc.doc);
+    
+    reader_freedoc(&doc);
     reader_free(reader);
+    fclose(fp);
 
     // String* str = string_new();
 

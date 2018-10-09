@@ -15,3 +15,5 @@ Document reader_getDocument(Reader* reader);
 int reader_getStatus(Reader* reader);
 
 void reader_free(Reader* reader);
+//Only frees contents
+void reader_freedoc(Document* doc);
