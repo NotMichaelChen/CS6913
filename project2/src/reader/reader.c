@@ -43,8 +43,10 @@ Document reader_getDocument(Reader* reader) {
     //Read metadata
     ReaderMetadata metadata;
     int err = reader_readMetadata(&metadata, reader->fp);
-    if(err)
+    if(err) {
+        reader->status = 5;
         return (Document) {NULL, NULL, -1};
+    }
 
     //Read document
     int docsize = strtol(metadata.Content_Length, NULL, 10);

@@ -10,6 +10,7 @@ src = [
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
 	'src/indexer/docparser.c',
+	'src/indexer/postingwriter.c',
 	'src/main.c',
 ]
 

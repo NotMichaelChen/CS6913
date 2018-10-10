@@ -62,6 +62,8 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
         }
     }
 
+    //Read one more line to get to the actual content
+    read = getline(&line, &linelen, fp);
     free(line);
     if(read < 0)
         return 3;

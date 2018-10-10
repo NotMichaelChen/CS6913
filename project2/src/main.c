@@ -10,15 +10,22 @@ int main (int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
+    Document doc;
 
-    Document doc = dirreader_getDocument(reader);
-    //printf("%s %i %s\n", doc.url, doc.docsize, doc.doc);
+    while(1) {
+        doc = dirreader_getDocument(reader);
+        if(dirreader_getStatus(reader))
+            break;
 
-    IntermediatePostingList list = docparser_getPostings(doc);
-    printf("%i\n", list.len);
-    for(int i = 0; i < list.len; i++) {
-        printf("%s %i\n", string_getString(list.head[i].term), list.head[i].freq);
+        printf("%s %i\n", doc.url, doc.docsize);
+        reader_freedoc(&doc);
     }
+
+    //IntermediatePostingList list = docparser_getPostings(doc);
+    // printf("%i\n", list.len);
+    // for(int i = 0; i < list.len; i++) {
+    //     printf("%s %i\n", string_getString(list.head[i].term), list.head[i].freq);
+    // }
 
     reader_freedoc(&doc);
 

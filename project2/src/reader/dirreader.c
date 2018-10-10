@@ -62,7 +62,7 @@ Document dirreader_getDocument(DirReader* reader) {
 
         err = reader_getStatus(reader->docreader);
 
-        if(!err) {
+        if(err) {
             reader->ent = readdir(reader->dir);
             if(reader->ent == NULL) {
                 reader->status = 1;
