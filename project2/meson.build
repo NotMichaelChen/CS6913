@@ -9,7 +9,7 @@ src = [
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
-	'src/indexer/doctokenizer.c',
+	'src/indexer/docparser.c',
 	'src/main.c',
 ]
 

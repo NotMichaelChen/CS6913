@@ -4,15 +4,23 @@
 #include "reader/reader.h"
 #include "reader/dirreader.h"
 #include "michaellib/string.h"
+#include "indexer/docparser.h"
 
 int main (int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
-    printf("%i\n", dirreader_getStatus(reader));
 
     Document doc = dirreader_getDocument(reader);
-    printf("%s %i %s\n", doc.url, doc.docsize, doc.doc);
+    //printf("%s %i %s\n", doc.url, doc.docsize, doc.doc);
+
+    IntermediatePostingList list = docparser_getPostings(doc);
+    printf("%i\n", list.len);
+    for(int i = 0; i < list.len; i++) {
+        printf("%s %i\n", string_getString(list.head[i].term), list.head[i].freq);
+    }
+
+    reader_freedoc(&doc);
 
     // FILE* fp = fopen("CC-MAIN-20130516092621-00000-ip-10-60-113-184.ec2.internal.warc.wet", "r");
     // if(!fp) {

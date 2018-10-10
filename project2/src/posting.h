@@ -6,10 +6,16 @@
 
 typedef struct IntermediatePosting {
     String* term;
-    uint32_t docID;
+    uint32_t freq;
 } IntermediatePosting;
 
-typedef struct Posting {
+typedef struct MemPosting {
+    String* term;
     uint32_t docID;
     uint32_t freq;
-} Posting;
+} MemPosting;
+
+typedef struct DiskPosting {
+    uint32_t docID;
+    uint32_t freq;
+} DiskPosting;
