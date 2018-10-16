@@ -6,11 +6,13 @@ cxx = meson.get_compiler('c')
 
 src = [
 	'src/michaellib/string.c',
+	'src/michaellib/buffer.c',
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
-	'src/indexer/docparser.c',
-	'src/indexer/postingwriter.c',
+	'src/intermfilegen/filegen.c',
+	'src/indexer/docwriter.c',
+	'src/indexer/indexbuilder.c',
 	'src/main.c',
 ]
 

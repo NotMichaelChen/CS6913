@@ -1,12 +1,17 @@
-#include "docparser.h"
+#include "docwriter.h"
 
-#include "lib/uthash.h"
+#include "posting.h"
 
-IntermediatePostingList docparser_getPostings(Document doc) {
+typedef struct IntermediatePostingList {
+    IntermediatePosting* head;
+    size_t len;
+} IntermediatePostingList;
+
+IntermediatePostingList docwriter_getPostings(Document doc) {
     
     struct frequency {
         char* term;
-        uint32_t freq;
+        size_t freq;
         UT_hash_handle hh;
     };
 
@@ -61,4 +66,34 @@ IntermediatePostingList docparser_getPostings(Document doc) {
     free(tempdoc);
 
     return postinglist;
+}
+
+void docwriter_writePostings(IntermediatePostingList postinglist, size_t docID, FILE* fp, LexiconEntry* lexent) {
+    for(size_t i = 0; i < postinglist.len; ++i) {
+        //Write current position to lexicon
+        LexiconEntry* l;
+        HASH_FIND_STR(lexent, string_getString(postinglist.head[i].term), l);
+
+        if(l == NULL) {
+            size_t strlen = string_getLen(postinglist.head[i].term);
+            l = malloc(sizeof(LexiconEntry));
+            l->term = malloc(strlen + 1);
+            strncpy(l->term, string_getString(postinglist.head[i].term), strlen+1);
+            l->pos = ftell(fp);
+            HASH_ADD_KEYPTR(hh, lexent, l->term, strlen, l);
+        }
+        else {
+            HASH_DEL(lexent, l);
+            l->pos = ftell(fp);
+            HASH_ADD_KEYPTR(hh, lexent, l->term, string_getLen(postinglist.head[i].term), l);
+        }
+
+        //Write docid, then frequency
+        fwrite(&docID, sizeof(docID), 1, fp);
+        fwrite(&postinglist.head[i].freq, sizeof(postinglist.head[i].freq), 1, fp);
+    }
+}
+
+void docwriter_writeDoc(Document doc, size_t docID, FILE* fp, LexiconEntry* lexent) {
+    docwriter_writePostings(docwriter_getPostings(doc), docID, fp, lexent);
 }

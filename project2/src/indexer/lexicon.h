@@ -9,12 +9,13 @@ typedef struct Lexicon Lexicon;
 
 typedef struct LexiconEntry {
     char* term;
-    uint32_t pos;
+    size_t pos;
     UT_hash_handle hh;
 } LexiconEntry;
 
 Lexicon* lexicon_new();
 
-void lexicon_update(Lexicon* lex, String* term, int layer, int filenum, uint32_t newpos);
+LexiconEntry* lexicon_get(Lexicon* lex, int layer, int filenum);
+void lexicon_clear(Lexicon* lex, int layer);
 
 void lexicon_free(Lexicon* lex);
