@@ -73,7 +73,7 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
         string_free(line);
     }
 
-    free(postinglist.head);
+    docparser_freeIntermPostingList(postinglist);
 }
 
 void postinggen_flush(PostingGenerator* postinggen) {

@@ -52,6 +52,8 @@ IntermediatePostingList docparser_getPostings(Document doc) {
         String* str = string_newstr(f->term);
         postinglist.head[insertindex] = (IntermediatePosting) {str, f->freq};
 
+        HASH_DEL(freqdict, f);
+
         free(f->term);
         free(f);
 
@@ -61,4 +63,11 @@ IntermediatePostingList docparser_getPostings(Document doc) {
     free(tempdoc);
 
     return postinglist;
+}
+
+void docparser_freeIntermPostingList(IntermediatePostingList postinglist) {
+    for(size_t i = 0; i < postinglist.len; i++) {
+        string_free(postinglist.head[i].term);
+    }
+    free(postinglist.head);
 }

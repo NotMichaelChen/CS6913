@@ -9,3 +9,5 @@ typedef struct IntermediatePostingList {
 } IntermediatePostingList;
 
 IntermediatePostingList docparser_getPostings(Document doc);
+
+void docparser_freeIntermPostingList(IntermediatePostingList postinglist);
