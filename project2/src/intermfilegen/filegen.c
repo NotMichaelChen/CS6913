@@ -7,7 +7,7 @@
 #include "michaellib/buffer.h"
 #include "docparser.h"
 
-#define NUMBER_ASCII_LENGTH(X) (X == 0) ? 1 : (sizeof(char)*(int)log10(X))+2
+#define NUMBER_ASCII_LENGTH(X) (X == 0) ? 2 : (sizeof(char)*(int)log10(X))+2
 
 struct PostingGenerator {
     Buffer* buf;
@@ -28,8 +28,7 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     postinggen->buf = buffer_new(buffersize);
 
     postinggen->nextdocID = 0;
-    //To avoid issues with NUMBER_ASCII_LENGTH
-    postinggen->nextfilenum = 1;
+    postinggen->nextfilenum = 0;
 
     postinggen->err = 0;
 

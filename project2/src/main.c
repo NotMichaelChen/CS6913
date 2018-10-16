@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "reader/reader.h"
 #include "reader/dirreader.h"
 #include "michaellib/string.h"
 #include "intermfilegen/filegen.h"
+#include "mergesort/mergesort.h"
 
 int main (int argc, char *argv[]) {
     printf("Hello World!\n");
@@ -13,8 +15,10 @@ int main (int argc, char *argv[]) {
     PostingGenerator* postinggen = postinggen_new("output", 100000000);
     Document doc;
 
+    printf("Generating intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
+
     int i = 0;
-    while(i < 100) {
+    while(1) {
         doc = dirreader_getDocument(reader);
         if(dirreader_getStatus(reader))
             break;
@@ -28,6 +32,12 @@ int main (int argc, char *argv[]) {
     postinggen_flush(postinggen);
     postinggen_free(postinggen);
     dirreader_free(reader);
+
+    printf("Sorting intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
+
+    sort("output");
+    merge("output", "merged");
+
 
     //IntermediatePostingList list = docparser_getPostings(doc);
     // printf("%i\n", list.len);
