@@ -4,7 +4,6 @@
 #include "reader/reader.h"
 #include "reader/dirreader.h"
 #include "michaellib/string.h"
-#include "indexer/docparser.h"
 
 int main (int argc, char *argv[]) {
     printf("Hello World!\n");

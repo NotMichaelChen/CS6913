@@ -45,6 +45,11 @@ int buffer_getRemaining(Buffer* buf) {
     return buf->len - buf->pos;
 }
 
+void buffer_flush(Buffer* buf, FILE* fp) {
+    fwrite(buf->buffer, sizeof(char), buf->pos, fp);
+    buffer_clear(buf);
+}
+
 void buffer_clear(Buffer* buf) {
     buf->head = buf->buffer;
     buf->pos = 0;
