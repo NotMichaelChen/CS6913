@@ -1,6 +1,7 @@
 #include "buffer.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 struct Buffer {
     char* buffer;
