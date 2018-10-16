@@ -14,8 +14,6 @@ src = [
 	'src/reader/dirreader.c',
 	'src/intermfilegen/filegen.c',
 	'src/intermfilegen/docparser.c',
-	#'src/indexer/docwriter.c',
-	#'src/indexer/indexbuilder.c',
 	'src/main.c',
 ]
 
