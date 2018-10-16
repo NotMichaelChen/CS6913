@@ -14,7 +14,7 @@ IntermediatePostingList docparser_getPostings(Document doc) {
     size_t insertioncount = 0;
 
     char* tempdoc = malloc(doc.docsize + 1);
-    strncpy(tempdoc, doc.doc, doc.docsize + 1);
+    strcpy(tempdoc, doc.doc);
 
     char* docwalker = strtok(tempdoc, " \r\n\t");
     
@@ -27,7 +27,7 @@ IntermediatePostingList docparser_getPostings(Document doc) {
         if(f == NULL) {
             f = malloc(sizeof(struct frequency));
             f->term = malloc(docwalkerlen+1);
-            strncpy(f->term, docwalker, docwalkerlen+1);
+            strcpy(f->term, docwalker);
             f->freq = 1;
             HASH_ADD_KEYPTR(hh, freqdict, f->term, docwalkerlen, f);
             ++insertioncount;

@@ -22,7 +22,7 @@ String* string_newstr(char* str) {
     newstr->len = strlen(str);
     newstr->buf = malloc(newstr->len + 1);
 
-    strncpy(newstr->buf, str, newstr->len + 1);
+    strcpy(newstr->buf, str);
 
     return newstr;
 }
@@ -42,7 +42,7 @@ void string_appendString(String* str, char* toappend, size_t len) {
         str->len = len;
         str->buf = malloc(str->len + 1);
 
-        strncpy(str->buf, toappend, str->len + 1);
+        strcpy(str->buf, toappend);
     }
     else if(len == 0) {
         // do nothing

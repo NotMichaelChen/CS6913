@@ -4,21 +4,27 @@
 #include "reader/reader.h"
 #include "reader/dirreader.h"
 #include "michaellib/string.h"
+#include "intermfilegen/filegen.h"
 
 int main (int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
+    PostingGenerator* postinggen = postinggen_new("output", 100000000);
     Document doc;
 
     while(1) {
         doc = dirreader_getDocument(reader);
         if(dirreader_getStatus(reader))
             break;
-
-        printf("%s %i\n", doc.url, doc.docsize);
+        
+        postinggen_addDoc(postinggen, doc);
+        
         reader_freedoc(&doc);
     }
+
+    postinggen_flush(postinggen);
+    postinggen_free(postinggen);
 
     //IntermediatePostingList list = docparser_getPostings(doc);
     // printf("%i\n", list.len);

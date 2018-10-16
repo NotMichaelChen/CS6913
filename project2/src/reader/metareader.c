@@ -24,35 +24,35 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
 
         if(!strcmp(key, "WARC-Type")) {
             metadata->WARC_Type = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Type, value, valuelen+1);
+            strcpy(metadata->WARC_Type, value);
         }
         else if(!strcmp(key, "WARC-Target-URI")) {
             metadata->WARC_Target_URI = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Target_URI, value, valuelen+1);
+            strcpy(metadata->WARC_Target_URI, value);
         }
         else if(!strcmp(key, "WARC-Date")) {
             metadata->WARC_Date = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Date, value, valuelen+1);
+            strcpy(metadata->WARC_Date, value);
         }
         else if(!strcmp(key, "WARC-Record-ID")) {
             metadata->WARC_Record_ID = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Record_ID, value, valuelen+1);
+            strcpy(metadata->WARC_Record_ID, value);
         }
         else if(!strcmp(key, "WARC-Refers-To")) {
             metadata->WARC_Refers_To = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Refers_To, value, valuelen+1);
+            strcpy(metadata->WARC_Refers_To, value);
         }
         else if(!strcmp(key, "WARC-Block-Digest")) {
             metadata->WARC_Block_Digest = malloc(valuelen + 1);
-            strncpy(metadata->WARC_Block_Digest, value, valuelen+1);
+            strcpy(metadata->WARC_Block_Digest, value);
         }
         else if(!strcmp(key, "Content-Type")) {
             metadata->Content_Type = malloc(valuelen + 1);
-            strncpy(metadata->Content_Type, value, valuelen+1);
+            strcpy(metadata->Content_Type, value);
         }
         else if(!strcmp(key, "Content-Length")) {
             metadata->Content_Length = malloc(valuelen + 1);
-            strncpy(metadata->Content_Length, value, valuelen+1);
+            strcpy(metadata->Content_Length, value);
             //Assumed to be the last entry in the metadata block
             break;
         }

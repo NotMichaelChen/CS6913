@@ -52,6 +52,7 @@ Document reader_getDocument(Reader* reader) {
     int docsize = strtol(metadata.Content_Length, NULL, 10);
     char* doctext = malloc(docsize + 1);
     fread(doctext, 1, docsize, reader->fp);
+    doctext[docsize] = '\0';
 
     //Construct document struct
     Document doc;
@@ -59,7 +60,7 @@ Document reader_getDocument(Reader* reader) {
 
     size_t urllen = strlen(metadata.WARC_Target_URI);
     doc.url = malloc(urllen+1);
-    strncpy(doc.url, metadata.WARC_Target_URI, urllen + 1);
+    strcpy(doc.url, metadata.WARC_Target_URI);
 
     doc.docsize = docsize;
 

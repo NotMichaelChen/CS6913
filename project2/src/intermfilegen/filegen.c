@@ -32,6 +32,8 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     postinggen->nextfilenum = 1;
 
     postinggen->err = 0;
+
+    return postinggen;
 }
 
 void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
@@ -46,13 +48,13 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
 
         //TODO: avoid computing this every time
         uint32_t docIDlen = NUMBER_ASCII_LENGTH(docID);
-        char docIDstr[docIDlen];
+        char* docIDstr = malloc(docIDlen);
         snprintf(docIDstr, docIDlen, "%d", docID);
 
         uint32_t freq = postinglist.head[i].freq;
         uint32_t freqlen = NUMBER_ASCII_LENGTH(freq);
-        char freqstr[freqlen];
-        snprintf(freq, freqlen, "%d", freq);
+        char* freqstr = malloc(freqlen);
+        snprintf(freqstr, freqlen, "%d", freq);
 
         string_appendString(line, docIDstr, docIDlen-1);
         string_appendString(line, " ", 1);
@@ -66,6 +68,8 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
 
         buffer_write(postinggen->buf, string_getString(line), linelen);
 
+        free(docIDstr);
+        free(freqstr);
         string_free(line);
     }
 
