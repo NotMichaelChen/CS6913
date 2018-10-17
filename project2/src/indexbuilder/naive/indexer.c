@@ -33,7 +33,7 @@ Lexicon* generateIndex(FILE* ifp, FILE* ofp) {
             }
             else {
                 // Add entry to lexicon
-                lexicon_insert(lex, string_getString(currentterm), string_getLen(currentterm), ftell(ofp));
+                lexicon_insert(&lex, string_getString(currentterm), string_getLen(currentterm), ftell(ofp));
 
                 // Write out posting list
                 fwrite(ulongvector_getBuffer(postinglist), sizeof(uint64_t), ulongvector_size(postinglist), ofp);
@@ -53,6 +53,9 @@ Lexicon* generateIndex(FILE* ifp, FILE* ofp) {
         linewalker = strtok(NULL, "\t\r\n ");
         ulongvector_append(postinglist, strtoull(linewalker, NULL, 10));
     }
+
+    // Write out rest of posting list
+    fwrite(ulongvector_getBuffer(postinglist), sizeof(uint64_t), ulongvector_size(postinglist), ofp);
 
     free(line);
     string_free(currentterm);

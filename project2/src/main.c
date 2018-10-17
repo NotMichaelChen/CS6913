@@ -13,13 +13,13 @@ int main (int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
-    PostingGenerator* postinggen = postinggen_new("output", 100000000);
+    PostingGenerator* postinggen = postinggen_new("output", 100000);
     Document doc;
 
     printf("Generating intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
     int i = 0;
-    while(1) {
+    while(i < 200) {
         doc = dirreader_getDocument(reader);
         if(dirreader_getStatus(reader))
             break;
@@ -40,6 +40,12 @@ int main (int argc, char *argv[]) {
 
     printf("Building final index... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
+    Lexicon* lex = naive_buildIndex("output", "merged", "index");
+    FILE* lfp = fopen("output/lexicon", "wb");
+    lexicon_dump(&lex, lfp);
+    fclose(lfp);
+
+    lexicon_free(&lex);
 
     return 0;
 }
