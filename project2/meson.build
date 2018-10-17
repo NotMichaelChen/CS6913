@@ -9,6 +9,8 @@ m_dep = cc.find_library('m', required : false)
 src = [
 	'src/michaellib/string.c',
 	'src/michaellib/buffer.c',
+	'src/michaellib/postingvec.c',
+	'src/michaellib/utility.c',
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
@@ -16,6 +18,7 @@ src = [
 	'src/intermfilegen/docparser.c',
 	'src/mergesort/mergesort.c',
 	'src/main.c',
+	'src/posting.c',
 ]
 
 executable('out', src, dependencies: m_dep)

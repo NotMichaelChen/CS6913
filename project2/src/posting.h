@@ -20,6 +20,4 @@ typedef struct DiskPosting {
     size_t freq;
 } DiskPosting;
 
-int memposting_cmp(const MemPosting* a, const MemPosting* b);
-// Return the size of the posting if it were to be written to a file
-size_t memposting_getSize(MemPosting* posting);
+int memposting_cmp(const void* a, const void* b);

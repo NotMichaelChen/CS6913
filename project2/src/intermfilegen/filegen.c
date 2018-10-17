@@ -6,11 +6,13 @@
 #include "michaellib/string.h"
 #include "michaellib/buffer.h"
 #include "docparser.h"
+#include "michaellib/postingvec.h"
+#include "michaellib/utility.h"
 
 #define NUMBER_ASCII_LENGTH(X) (X == 0) ? 2 : (sizeof(char)*(int)log10(X))+2
 
 struct PostingGenerator {
-    Buffer* buf;
+    PostingVector* vec;
 
     uint32_t nextdocID;
 
@@ -19,13 +21,12 @@ struct PostingGenerator {
     int nextfilenum;
 };
 
-
 PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     PostingGenerator* postinggen = malloc(sizeof(PostingGenerator));
     
     postinggen->dir = string_newstr(directory);
     
-    postinggen->buf = buffer_new(buffersize);
+    postinggen->vec = postingvector_new(buffersize);
 
     postinggen->nextdocID = 0;
     postinggen->nextfilenum = 0;
@@ -42,34 +43,23 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     postinggen->nextdocID += 1;
 
     for(int i = 0; i < postinglist.len; i++) {
-        String* line = string_newstr(string_getString(postinglist.head[i].term));
-        string_appendString(line, " ", 1);
-
-        //TODO: avoid computing this every time
-        uint32_t docIDlen = NUMBER_ASCII_LENGTH(docID);
-        char* docIDstr = malloc(docIDlen);
-        snprintf(docIDstr, docIDlen, "%d", docID);
-
-        uint32_t freq = postinglist.head[i].freq;
-        uint32_t freqlen = NUMBER_ASCII_LENGTH(freq);
-        char* freqstr = malloc(freqlen);
-        snprintf(freqstr, freqlen, "%d", freq);
-
-        string_appendString(line, docIDstr, docIDlen-1);
-        string_appendString(line, " ", 1);
-        string_appendString(line, freqstr, freqlen-1);
-        string_appendString(line, "\n", 1);
-
-        size_t linelen = string_getLen(line);
-        if(linelen > buffer_getRemaining(postinggen->buf)) {
+        //TODO: abstract as function?
+        // Add 2 spaces, add 1 newline, subtract 2 from both getDigitcount
+        size_t postingsize = util_getDigitCount(docID)
+            + util_getDigitCount(postinglist.head[i].freq)
+            + string_getLen(postinglist.head[i].term)
+            + 1;
+        
+        if(postingsize > postingvector_getBytesRemaining(postinggen->vec)) {
             postinggen_flush(postinggen);
         }
 
-        buffer_write(postinggen->buf, string_getString(line), linelen);
-
-        free(docIDstr);
-        free(freqstr);
-        string_free(line);
+        postingvector_insert(
+            postinggen->vec,
+            docID,
+            postinglist.head[i].freq,
+            string_getString(postinglist.head[i].term)
+        );
     }
 
     docparser_freeIntermPostingList(postinglist);
@@ -88,7 +78,7 @@ void postinggen_flush(PostingGenerator* postinggen) {
 
     // Open the file and write the buffer out
     FILE* fp = fopen(string_getString(filepath), "w");
-    buffer_flush(postinggen->buf, fp);
+    postingvector_sortflush(postinggen->vec, fp);
     fclose(fp);
 
     // Increment next file number
@@ -98,7 +88,6 @@ void postinggen_flush(PostingGenerator* postinggen) {
 }
 
 void postinggen_free(PostingGenerator* postinggen) {
-    buffer_free(postinggen->buf);
     string_free(postinggen->dir);
     free(postinggen);
 }

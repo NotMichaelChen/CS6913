@@ -1,5 +1,8 @@
 #include "postingvec.h"
 
+#include <string.h>
+#include <stdio.h>
+
 #include "michaellib/utility.h"
 
 struct PostingVector {
@@ -7,7 +10,7 @@ struct PostingVector {
     size_t size;
     size_t capacity;
 
-    size_t bytesize;
+    size_t byteremaining;
     size_t bytecap;
 };
 
@@ -15,20 +18,22 @@ PostingVector* postingvector_new(size_t bytecap) {
     PostingVector* vec = malloc(sizeof(PostingVector));
 
     vec->buf = NULL;
-    vec->size = vec->capacity = vec->bytesize = 0;
-    vec->bytecap = bytecap;
+    vec->size = vec->capacity = 0;
+    vec->bytecap = vec->byteremaining = bytecap;
 
     return vec;
 }
 
 size_t postingvector_getBytesRemaining(PostingVector* vec) {
-    return vec->bytecap - vec->bytesize;
+    return vec->byteremaining;
 }
 
-void postingvector_insert(PostingVector* vec, MemPosting* posting) {
-    if(memposting_getSize(posting) > vec->bytecap - vec->bytesize)
+void postingvector_insert(PostingVector* vec, size_t docID, size_t freq, char* term) {
+    // Add 2 spaces, add 1 newline, subtract 2 from both getDigitcount
+    size_t postingsize = util_getDigitCount(docID) + util_getDigitCount(freq) + strlen(term) + 1;
+    if(postingsize > vec->byteremaining)
         return;
-
+    
     if(vec->size == vec->capacity) {
         //realloc
         if(vec->capacity == 0) {
@@ -41,12 +46,12 @@ void postingvector_insert(PostingVector* vec, MemPosting* posting) {
         }
     }
 
-    vec->buf[vec->size].docID = posting->docID;
-    vec->buf[vec->size].freq = posting->freq;
-    vec->buf[vec->size].term = string_newstr(string_getString(posting->term));
+    vec->buf[vec->size].docID = docID;
+    vec->buf[vec->size].freq = freq;
+    vec->buf[vec->size].term = string_newstr(term);
 
     vec->size += 1;
-    vec->bytesize += memposting_getSize(posting);
+    vec->byteremaining -= postingsize;
 }
 
 void postingvector_sortflush(PostingVector* vec, FILE* fp) {
@@ -58,12 +63,12 @@ void postingvector_sortflush(PostingVector* vec, FILE* fp) {
 
         uint32_t docIDlen = util_getDigitCount(vec->buf[i].docID);
         char* docIDstr = malloc(docIDlen);
-        snprintf(docIDstr, docIDlen, "%d", vec->buf[i].docID);
+        snprintf(docIDstr, docIDlen, "%lu", vec->buf[i].docID);
 
-        uint32_t freq = vec->buf[i].freq;
+        size_t freq = vec->buf[i].freq;
         uint32_t freqlen = util_getDigitCount(freq);
         char* freqstr = malloc(freqlen);
-        snprintf(freqstr, freqlen, "%d", freq);
+        snprintf(freqstr, freqlen, "%lu", freq);
 
         string_appendString(line, docIDstr, docIDlen-1);
         string_appendString(line, " ", 1);
@@ -72,7 +77,8 @@ void postingvector_sortflush(PostingVector* vec, FILE* fp) {
 
         size_t linelen = string_getLen(line);
 
-        fputs(string_getString(line), fp);
+        fwrite(string_getString(line), 1, linelen, fp);
+        // fputs(string_getString(line), fp);
 
         free(docIDstr);
         free(freqstr);
@@ -83,7 +89,7 @@ void postingvector_sortflush(PostingVector* vec, FILE* fp) {
         string_free(vec->buf[i].term);
     }
     vec->size = 0;
-    vec->bytesize = 0;
+    vec->byteremaining = vec->bytecap;
 }
 
 void postingvector_free(PostingVector* vec) {

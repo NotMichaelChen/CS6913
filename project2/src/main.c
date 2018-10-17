@@ -35,7 +35,7 @@ int main (int argc, char *argv[]) {
 
     printf("Sorting intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
-    sort("output");
+    //sort("output");
     merge("output", "merged");
 
 
