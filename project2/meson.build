@@ -7,17 +7,20 @@ cc = meson.get_compiler('c')
 m_dep = cc.find_library('m', required : false)
 
 src = [
+	'src/michaellib/ulongvec.c',
 	'src/michaellib/string.c',
-	'src/michaellib/postingvec.c',
 	'src/michaellib/utility.c',
+	'src/michaellib/postingvec.c',
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
-	'src/intermfilegen/filegen.c',
-	'src/intermfilegen/docparser.c',
+	'src/indexbuilder/naive/indexer.c',
+	'src/indexbuilder/lexicon.c',
 	'src/mergesort/mergesort.c',
-	'src/main.c',
+	'src/intermfilegen/docparser.c',
+	'src/intermfilegen/filegen.c',
 	'src/posting.c',
+	'src/main.c',
 ]
 
 executable('out', src, dependencies: m_dep)
