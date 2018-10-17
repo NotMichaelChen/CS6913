@@ -8,7 +8,6 @@ m_dep = cc.find_library('m', required : false)
 
 src = [
 	'src/michaellib/string.c',
-	'src/michaellib/buffer.c',
 	'src/michaellib/postingvec.c',
 	'src/michaellib/utility.c',
 	'src/reader/metareader.c',

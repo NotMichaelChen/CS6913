@@ -4,12 +4,9 @@
 #include <math.h>
 
 #include "michaellib/string.h"
-#include "michaellib/buffer.h"
 #include "docparser.h"
 #include "michaellib/postingvec.h"
 #include "michaellib/utility.h"
-
-#define NUMBER_ASCII_LENGTH(X) (X == 0) ? 2 : (sizeof(char)*(int)log10(X))+2
 
 struct PostingGenerator {
     PostingVector* vec;
@@ -43,13 +40,12 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     postinggen->nextdocID += 1;
 
     for(int i = 0; i < postinglist.len; i++) {
-        //TODO: abstract as function?
-        // Add 2 spaces, add 1 newline, subtract 2 from both getDigitcount
-        size_t postingsize = util_getDigitCount(docID)
-            + util_getDigitCount(postinglist.head[i].freq)
-            + string_getLen(postinglist.head[i].term)
-            + 1;
-        
+        size_t postingsize = util_getMempostingSize(
+            docID,
+            postinglist.head[i].freq,
+            string_getLen(postinglist.head[i].term)
+        );
+
         if(postingsize > postingvector_getBytesRemaining(postinggen->vec)) {
             postinggen_flush(postinggen);
         }
@@ -70,7 +66,7 @@ void postinggen_flush(PostingGenerator* postinggen) {
     String* filepath = string_newstr(string_getString(postinggen->dir));
     string_appendString(filepath, "/", 1);
 
-    uint32_t filenamelen = NUMBER_ASCII_LENGTH(postinggen->nextfilenum);
+    uint32_t filenamelen = util_getDigitCount(postinggen->nextfilenum);
     char filename[filenamelen];
     snprintf(filename, filenamelen, "%d", postinggen->nextfilenum);
 
@@ -89,5 +85,6 @@ void postinggen_flush(PostingGenerator* postinggen) {
 
 void postinggen_free(PostingGenerator* postinggen) {
     string_free(postinggen->dir);
+    postingvector_free(postinggen->vec);
     free(postinggen);
 }

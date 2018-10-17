@@ -30,7 +30,7 @@ size_t postingvector_getBytesRemaining(PostingVector* vec) {
 
 void postingvector_insert(PostingVector* vec, size_t docID, size_t freq, char* term) {
     // Add 2 spaces, add 1 newline, subtract 2 from both getDigitcount
-    size_t postingsize = util_getDigitCount(docID) + util_getDigitCount(freq) + strlen(term) + 1;
+    size_t postingsize = util_getMempostingSize(docID, freq, strlen(term));
     if(postingsize > vec->byteremaining)
         return;
     
