@@ -11,6 +11,6 @@ int memposting_cmp(const void* a, const void* b) {
     if(res)
         return res;
     else {
-        return (c->docID < d->docID) ? -1 : (c->docID > d->docID);
+        return (c->docID > d->docID) - (c->docID < d->docID);
     }
 }

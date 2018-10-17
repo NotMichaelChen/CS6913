@@ -63,24 +63,21 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
 
 void postinggen_flush(PostingGenerator* postinggen) {
     // Create the filepath
-    String* filepath = string_newstr(string_getString(postinggen->dir));
-    string_appendString(filepath, "/", 1);
+    // plus one for slash, getDigitCount includes \0 character
+    size_t filepathlen = string_getLen(postinggen->dir) + util_getDigitCount(postinggen->nextfilenum) + 1;
+    char* filepath = malloc(filepathlen);
 
-    uint32_t filenamelen = util_getDigitCount(postinggen->nextfilenum);
-    char filename[filenamelen];
-    snprintf(filename, filenamelen, "%d", postinggen->nextfilenum);
-
-    string_appendString(filepath, filename, filenamelen-1);
-
+    snprintf(filepath, filepathlen, "%s/%d", string_getString(postinggen->dir), postinggen->nextfilenum);
+    
     // Open the file and write the buffer out
-    FILE* fp = fopen(string_getString(filepath), "w");
+    FILE* fp = fopen(filepath, "w");
     postingvector_sortflush(postinggen->vec, fp);
     fclose(fp);
 
     // Increment next file number
     postinggen->nextfilenum += 1;
 
-    string_free(filepath);
+    free(filepath);
 }
 
 void postinggen_free(PostingGenerator* postinggen) {

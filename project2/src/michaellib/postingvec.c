@@ -58,31 +58,11 @@ void postingvector_sortflush(PostingVector* vec, FILE* fp) {
     qsort(vec->buf, vec->size, sizeof(MemPosting), memposting_cmp);
 
     for(size_t i = 0; i < vec->size; i++) {
-        String* line = string_newstr(string_getString(vec->buf[i].term));
-        string_appendString(line, " ", 1);
-
-        uint32_t docIDlen = util_getDigitCount(vec->buf[i].docID);
-        char* docIDstr = malloc(docIDlen);
-        snprintf(docIDstr, docIDlen, "%lu", vec->buf[i].docID);
-
-        size_t freq = vec->buf[i].freq;
-        uint32_t freqlen = util_getDigitCount(freq);
-        char* freqstr = malloc(freqlen);
-        snprintf(freqstr, freqlen, "%lu", freq);
-
-        string_appendString(line, docIDstr, docIDlen-1);
-        string_appendString(line, " ", 1);
-        string_appendString(line, freqstr, freqlen-1);
-        string_appendString(line, "\n", 1);
-
-        size_t linelen = string_getLen(line);
-
-        fwrite(string_getString(line), 1, linelen, fp);
-        // fputs(string_getString(line), fp);
-
-        free(docIDstr);
-        free(freqstr);
-        string_free(line);
+        fprintf(fp, "%s %lu %lu\n",
+            string_getString(vec->buf[i].term),
+            vec->buf[i].docID,
+            vec->buf[i].freq
+        );
     }
 
     for(size_t i = 0; i < vec->size; i++) {

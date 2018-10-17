@@ -1,5 +1,7 @@
 .vscode/
 debug/
+release/
+debug-optimize/
 
 # Prerequisites
 *.d
