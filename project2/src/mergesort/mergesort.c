@@ -10,7 +10,7 @@
 
 int merge(char* directory, char* outputname) {
     String* dirstr = string_newstr(directory);
-    String* command = string_newstr("sort -m ");
+    String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n ");
 
     DIR *dir;
     struct dirent *ent;
