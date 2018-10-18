@@ -8,14 +8,14 @@
 #include "intermfilegen/filegen.h"
 #include "mergesort/mergesort.h"
 #include "indexbuilder/naive/indexer.h"
-
-#include "compression/varbyte.h"
+#include "indexbuilder/pagetable.h"
 
 int main(int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
     PostingGenerator* postinggen = postinggen_new("output", 100000000);
+    PageTable* table = pagetable_new();
     Document doc;
 
     printf("Generating intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
@@ -26,12 +26,18 @@ int main(int argc, char *argv[]) {
         if(dirreader_getStatus(reader))
             break;
         
+        pagetable_add(table, doc.url, doc.docsize);
         postinggen_addDoc(postinggen, doc);
         
         reader_freedoc(&doc);
         i++;
     }
 
+    FILE* tfp = fopen("output/pagetable", "wb");
+    pagetable_dump(table, tfp);
+    fclose(tfp);
+    pagetable_free(table);
+    
     postinggen_flush(postinggen);
     postinggen_free(postinggen);
     dirreader_free(reader);

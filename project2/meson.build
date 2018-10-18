@@ -22,6 +22,7 @@ src = [
 	'src/compression/varbyte.c',
 	'src/posting.c',
 	'src/main.c',
+	'src/indexbuilder/pagetable.c',
 ]
 
 executable('out', src, dependencies: m_dep)
