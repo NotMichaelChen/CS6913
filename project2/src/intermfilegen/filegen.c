@@ -6,7 +6,6 @@
 
 #include "michaellib/string.h"
 #include "docparser.h"
-#include "michaellib/postingvec.h"
 #include "michaellib/buffer.h"
 #include "michaellib/utility.h"
 
@@ -27,7 +26,6 @@ void writePostingList(MemPosting* postinglist, size_t len, FILE* fp) {
 }
 
 struct PostingGenerator {
-    PostingVector* vec;
     Buffer* buf;
 
     uint32_t nextdocID;
@@ -44,7 +42,6 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     postinggen->dir = string_newstr(directory);
     
     postinggen->buf = buffer_new(buffersize);
-    postinggen->vec = postingvector_new(buffersize);
 
     postinggen->nextdocID = 0;
     postinggen->nextfilenum = 0;

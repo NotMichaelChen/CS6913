@@ -10,7 +10,6 @@ src = [
 	'src/michaellib/ulongvec.c',
 	'src/michaellib/string.c',
 	'src/michaellib/utility.c',
-	'src/michaellib/postingvec.c',
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
