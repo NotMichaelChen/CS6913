@@ -32,28 +32,29 @@ int main(int argc, char *argv[]) {
         reader_freedoc(&doc);
         i++;
     }
-
-    FILE* tfp = fopen("output/pagetable", "wb");
-    pagetable_dump(table, tfp);
-    fclose(tfp);
-    pagetable_free(table);
+    printf("%i\n", dirreader_getStatus(reader));
     
     postinggen_flush(postinggen);
     postinggen_free(postinggen);
     dirreader_free(reader);
 
-    printf("Sorting intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
+    printf("Merging intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
     merge("output", "merged");
 
     printf("Building final index... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
     Lexicon* lex = naive_buildIndex("output", "merged", "index");
+    
     FILE* lfp = fopen("output/lexicon", "wb");
     lexicon_dump(&lex, lfp);
     fclose(lfp);
-
     lexicon_free(&lex);
+
+    FILE* tfp = fopen("output/pagetable", "wb");
+    pagetable_dump(table, tfp);
+    fclose(tfp);
+    pagetable_free(table);
 
     printf("Done (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 

@@ -8,13 +8,39 @@
 
 #include "michaellib/string.h"
 
+void eraseIntermediates(char* directory, char* outputname) {
+    DIR *dir;
+    struct dirent *ent;
+    if((dir = opendir(directory)) != NULL) {
+        while((ent = readdir(dir)) != NULL) {
+
+            if(!strcmp(ent->d_name, ".")
+                || !strcmp(ent->d_name, "..")
+                || !strcmp(ent->d_name, outputname))
+            {
+                continue;
+            }
+
+            String* path = string_newstr(directory);
+            string_appendString(path, "/", 1);
+            string_appendString(path, ent->d_name, strlen(ent->d_name));
+
+            remove(string_getString(path));
+
+            string_free(path);
+        }
+
+        closedir(dir);
+    }
+}
+
 int merge(char* directory, char* outputname) {
     String* dirstr = string_newstr(directory);
     String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n ");
 
     DIR *dir;
     struct dirent *ent;
-    if((dir = opendir("output")) != NULL) {
+    if((dir = opendir(directory)) != NULL) {
         while((ent = readdir(dir)) != NULL) {
             if(!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..")) {
                 continue;
@@ -34,6 +60,7 @@ int merge(char* directory, char* outputname) {
         system(string_getString(command));
 
         closedir(dir);
+        eraseIntermediates(directory, outputname);
     }
     else {
         string_free(dirstr);

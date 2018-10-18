@@ -28,9 +28,12 @@ DirReader* dirreader_new(char* directory) {
     }
 
     reader->ent = readdir(reader->dir);
-    if(reader->ent == NULL) {
-        reader->status = 4;
-        return reader;
+    while(!strcmp(reader->ent->d_name,".") || !strcmp(reader->ent->d_name,"..")) {
+        reader->ent = readdir(reader->dir);
+        if(reader->ent == NULL) {
+            reader->status = 4;
+            return reader;
+        }
     }
 
     String* str = string_newstr(directory);
@@ -64,22 +67,29 @@ Document dirreader_getDocument(DirReader* reader) {
 
         if(err) {
             reader->ent = readdir(reader->dir);
-            if(reader->ent == NULL) {
-                reader->status = 1;
-                return doc;
+            while(!strcmp(reader->ent->d_name,".") || !strcmp(reader->ent->d_name,"..")) {
+                reader->ent = readdir(reader->dir);
+                if(reader->ent == NULL) {
+                    reader->status = 1;
+                    return doc;
+                }
             }
 
             reader_free(reader->docreader);
             fclose(reader->fp);
 
-            reader->fp = fopen(reader->ent->d_name, "r");
+            String* str = string_newstr(reader->directory);
+            string_appendString(str, "/", 1);
+            string_appendString(str, reader->ent->d_name, strlen(reader->ent->d_name));
+            reader->fp = fopen(string_getString(str), "r");
+            string_free(str);
             if(!reader->fp) {
                 reader->status = 2;
                 return doc;
             }
 
             reader->docreader = reader_new(reader->fp);
-            if(!reader_getStatus(reader->docreader)) {
+            if(reader_getStatus(reader->docreader)) {
                 reader->status = 3;
                 return doc;
             }
