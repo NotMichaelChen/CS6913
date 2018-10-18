@@ -23,6 +23,7 @@ src = [
 	'src/posting.c',
 	'src/main.c',
 	'src/indexbuilder/pagetable.c',
+	'src/michaellib/buffer.c',
 ]
 
 executable('out', src, dependencies: m_dep)

@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
-    PostingGenerator* postinggen = postinggen_new("output", 100000000);
+    PostingGenerator* postinggen = postinggen_new("output", 1000000000);
     PageTable* table = pagetable_new();
     Document doc;
 
@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
         reader_freedoc(&doc);
         i++;
     }
-    printf("%i\n", dirreader_getStatus(reader));
     
     postinggen_flush(postinggen);
     postinggen_free(postinggen);

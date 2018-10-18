@@ -8,5 +8,7 @@ inline int util_getDigitCount(size_t num) {
 
 inline int util_getMempostingSize(size_t docID, size_t freq, size_t stringlen) {
     // Add 2 spaces, add 1 newline, subtract 2 from both getDigitcount
-    return util_getDigitCount(docID) + util_getDigitCount(freq) + stringlen + 1;
+    // return util_getDigitCount(docID) + util_getDigitCount(freq) + stringlen + 1;
+    //How much space each posting takes in memory
+    return sizeof(docID) + sizeof(freq) + stringlen + sizeof(stringlen);
 }

@@ -2,14 +2,33 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "michaellib/string.h"
 #include "docparser.h"
 #include "michaellib/postingvec.h"
+#include "michaellib/buffer.h"
 #include "michaellib/utility.h"
+
+void writePostingList(MemPosting* postinglist, size_t len, FILE* fp) {
+    for(size_t i = 0; i < len; i++) {
+        fprintf(fp, "%s %lu %lu\n",
+            string_getString(postinglist[i].term),
+            postinglist[i].docID,
+            postinglist[i].freq
+        );
+    }
+
+    for(size_t i = 0; i < len; i++) {
+        string_free(postinglist[i].term);
+    }
+
+    free(postinglist);
+}
 
 struct PostingGenerator {
     PostingVector* vec;
+    Buffer* buf;
 
     uint32_t nextdocID;
 
@@ -21,8 +40,10 @@ struct PostingGenerator {
 PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     PostingGenerator* postinggen = malloc(sizeof(PostingGenerator));
     
+    
     postinggen->dir = string_newstr(directory);
     
+    postinggen->buf = buffer_new(buffersize);
     postinggen->vec = postingvector_new(buffersize);
 
     postinggen->nextdocID = 0;
@@ -36,26 +57,26 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
 void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     IntermediatePostingList postinglist = docparser_getPostings(doc);
 
-    uint32_t docID = postinggen->nextdocID;
+    size_t docID = postinggen->nextdocID;
     postinggen->nextdocID += 1;
 
     for(int i = 0; i < postinglist.len; i++) {
-        size_t postingsize = util_getMempostingSize(
-            docID,
-            postinglist.head[i].freq,
-            string_getLen(postinglist.head[i].term)
-        );
+        size_t totalsize = sizeof(size_t) * 2 + string_getLen(postinglist.head[i].term) + 1;
+        char* line = malloc(totalsize);
+        //Copy the null terminator too
+        memcpy(line, string_getString(postinglist.head[i].term), string_getLen(postinglist.head[i].term) + 1);
+        char* nextloc = line + string_getLen(postinglist.head[i].term) + 1;
+        memcpy(nextloc, &docID, sizeof(docID));
+        nextloc += sizeof(docID);
+        memcpy(nextloc, &(postinglist.head[i].freq), sizeof(postinglist.head[i].freq));
 
-        if(postingsize > postingvector_getBytesRemaining(postinggen->vec)) {
+        if(totalsize > buffer_getRemaining(postinggen->buf)) {
             postinggen_flush(postinggen);
         }
 
-        postingvector_insert(
-            postinggen->vec,
-            docID,
-            postinglist.head[i].freq,
-            string_getString(postinglist.head[i].term)
-        );
+        buffer_write(postinggen->buf, line, totalsize);
+
+        free(line);
     }
 
     docparser_freeIntermPostingList(postinglist);
@@ -71,7 +92,12 @@ void postinggen_flush(PostingGenerator* postinggen) {
     
     // Open the file and write the buffer out
     FILE* fp = fopen(filepath, "w");
-    postingvector_sortflush(postinggen->vec, fp);
+    size_t postinglistlen = 0;
+    MemPosting* postinglist = buffer_getPostings(postinggen->buf, &postinglistlen);
+    qsort(postinglist, postinglistlen, sizeof(MemPosting), memposting_cmp);
+
+    writePostingList(postinglist, postinglistlen, fp);
+
     fclose(fp);
 
     // Increment next file number
@@ -82,6 +108,6 @@ void postinggen_flush(PostingGenerator* postinggen) {
 
 void postinggen_free(PostingGenerator* postinggen) {
     string_free(postinggen->dir);
-    postingvector_free(postinggen->vec);
+    buffer_free(postinggen->buf);
     free(postinggen);
 }

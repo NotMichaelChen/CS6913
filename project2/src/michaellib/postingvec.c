@@ -52,6 +52,7 @@ void postingvector_insert(PostingVector* vec, size_t docID, size_t freq, char* t
 
     vec->size += 1;
     vec->byteremaining -= postingsize;
+    printf("%lu\n", vec->byteremaining);
 }
 
 void postingvector_sortflush(PostingVector* vec, FILE* fp) {

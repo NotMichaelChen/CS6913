@@ -6,7 +6,7 @@
 
 typedef struct IntermediatePosting {
     String* term;
-    uint32_t freq;
+    size_t freq;
 } IntermediatePosting;
 
 typedef struct MemPosting {
