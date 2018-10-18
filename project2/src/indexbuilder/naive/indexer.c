@@ -5,6 +5,7 @@
 
 #include "michaellib/string.h"
 #include "michaellib/ulongvec.h"
+#include "compression/varbyte.h"
 #include "posting.h"
 
 //TODO: bad name
@@ -36,7 +37,11 @@ Lexicon* generateIndex(FILE* ifp, FILE* ofp) {
                 lexicon_insert(&lex, string_getString(currentterm), string_getLen(currentterm), ftell(ofp));
 
                 // Write out posting list
-                fwrite(ulongvector_getBuffer(postinglist), sizeof(uint64_t), ulongvector_size(postinglist), ofp);
+                for(int i = 0; i < ulongvector_size(postinglist); i++) {
+                    String* str = varbyte_encode(ulongvector_get(postinglist, i));
+                    fwrite(string_getString(str), 1, string_getLen(str), ofp);
+                    string_free(str);
+                }
 
                 // Empty posting list
                 ulongvector_clear(postinglist);
@@ -55,7 +60,11 @@ Lexicon* generateIndex(FILE* ifp, FILE* ofp) {
     }
 
     // Write out rest of posting list
-    fwrite(ulongvector_getBuffer(postinglist), sizeof(uint64_t), ulongvector_size(postinglist), ofp);
+    for(int i = 0; i < ulongvector_size(postinglist); i++) {
+        String* str = varbyte_encode(ulongvector_get(postinglist, i));
+        fwrite(string_getString(str), 1, string_getLen(str), ofp);
+        string_free(str);
+    }
 
     free(line);
     string_free(currentterm);

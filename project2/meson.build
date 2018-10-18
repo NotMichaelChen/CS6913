@@ -19,6 +19,7 @@ src = [
 	'src/mergesort/mergesort.c',
 	'src/intermfilegen/docparser.c',
 	'src/intermfilegen/filegen.c',
+	'src/compression/varbyte.c',
 	'src/posting.c',
 	'src/main.c',
 ]

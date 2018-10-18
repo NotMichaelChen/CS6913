@@ -9,17 +9,19 @@
 #include "mergesort/mergesort.h"
 #include "indexbuilder/naive/indexer.h"
 
-int main (int argc, char *argv[]) {
+#include "compression/varbyte.h"
+
+int main(int argc, char *argv[]) {
     printf("Hello World!\n");
 
     DirReader* reader = dirreader_new("CC");
-    PostingGenerator* postinggen = postinggen_new("output", 100000);
+    PostingGenerator* postinggen = postinggen_new("output", 100000000);
     Document doc;
 
     printf("Generating intermediate files... (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
     int i = 0;
-    while(i < 200) {
+    while(1) {
         doc = dirreader_getDocument(reader);
         if(dirreader_getStatus(reader))
             break;
@@ -46,6 +48,8 @@ int main (int argc, char *argv[]) {
     fclose(lfp);
 
     lexicon_free(&lex);
+
+    printf("Done (%fs)\n", clock() / (double)CLOCKS_PER_SEC);
 
     return 0;
 }

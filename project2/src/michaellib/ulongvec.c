@@ -12,6 +12,8 @@ ULongVector* ulongvector_new() {
     vec->buf = NULL;
     vec->size = 0;
     vec->capacity = 0;
+
+    return vec;
 }
 
 void ulongvector_append(ULongVector* vec, uint64_t num) {
@@ -27,6 +29,10 @@ void ulongvector_append(ULongVector* vec, uint64_t num) {
 
     vec->buf[vec->size] = num;
     vec->size++;
+}
+
+uint64_t ulongvector_get(ULongVector* vec, size_t pos) {
+    return vec->buf[pos];
 }
 
 size_t ulongvector_size(ULongVector* vec) {
