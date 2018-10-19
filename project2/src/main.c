@@ -25,14 +25,15 @@ int main(int argc, char *argv[]) {
         double elapsedtime;
         gettimeofday(&t1, NULL);
 
+        // Initialze document reader, posting generator, and page table
         DirReader* reader = dirreader_new(WET);
         PostingGenerator* postinggen = postinggen_new(output, buffer);
         PageTable* table = pagetable_new();
         Document doc;
 
         printf("Generating intermediate files...\n");
-
-        int i = 0;
+    
+        // Add documents to the posting generator until there's no more documents
         while(1) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
@@ -42,9 +43,9 @@ int main(int argc, char *argv[]) {
             postinggen_addDoc(postinggen, doc);
             
             reader_freedoc(&doc);
-            i++;
         }
         
+        // Empty out any postings left in the posting generator
         postinggen_flush(postinggen);
         postinggen_free(postinggen);
         dirreader_free(reader);
@@ -53,15 +54,17 @@ int main(int argc, char *argv[]) {
         elapsedtime = (t2.tv_sec - t1.tv_sec);
         printf("Merging intermediate files... (%fs)\n", elapsedtime);
 
+        // Merge all files output by the posting generator
         merge(output, "merged", buffer);
 
         gettimeofday(&t2, NULL);
         elapsedtime = (t2.tv_sec - t1.tv_sec);
         printf("Building final index... (%fs)\n", elapsedtime);
 
+        // Build the index, which produces a lexicon
         Lexicon* lex = naive_buildIndex(output, "merged", "index");
         
-
+        // Write out the lexicon and pagetable
         FILE* lfp = fopen("output/lexicon", "wb");
         lexicon_dump(&lex, lfp);
         fclose(lfp);

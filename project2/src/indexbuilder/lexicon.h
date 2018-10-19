@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// Wraps the lexicon dictionary in a more intuitive interface. Note that all of
+// the function take a pointer to a lexicon pointer, since uthash needs to
+// be able to change the head pointer of the dictionary
+
 typedef struct Lexicon Lexicon;
 
 Lexicon* lexicon_new();

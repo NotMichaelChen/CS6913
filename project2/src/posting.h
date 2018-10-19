@@ -4,6 +4,8 @@
 
 #include "michaellib/string.h"
 
+// Contains posting structs that hold various forms of postings
+
 typedef struct IntermediatePosting {
     String* term;
     size_t freq;

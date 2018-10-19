@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 
+// Represents a collection of all of the metadata fields in the WET file. No
+// state is required so the struct can be fully defined in the header
+
 typedef struct ReaderMetadata {
     char* WARC_Type;
     char* WARC_Target_URI;
@@ -13,7 +16,9 @@ typedef struct ReaderMetadata {
     char* Content_Length;
 } ReaderMetadata;
 
+// Read the metatadata from the file. Assumes that the WARC/1.0 line has already
+// been read and we are currently pointing at one of the metadata fields
 int reader_readMetadata(ReaderMetadata* metadata, FILE* fp);
-// Only frees the contents, if the metadata struct was malloced, the caller must
-// free the struct
+// Only frees the contents. If the metadata struct was malloced, the caller must
+// free the struct themselves
 void reader_freeMetadata(ReaderMetadata* metadata);

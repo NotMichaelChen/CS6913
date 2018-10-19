@@ -8,20 +8,32 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
     size_t linelen = 0;
     int read = 0;
 
+    // Read line by line
     while((read = getline(&line, &linelen, fp)) != -1) {
+        // Save the beginning of the line, since we're about to strtok it
         char* linewalker = line;
 
+        // Attempt to tokenize the field name. Return failure if unable to
         linewalker = strtok(line, ":\r\n ");
         if(linewalker == NULL)
             return 1;
 
+        // Save the field name string before continuing to tokenize
         char* key = linewalker;
 
+        // Attempt to tokenize the contents of the fields. Note that we don't
+        // split on ":" in this call since any other ":" characters are part of
+        // the field value.
         linewalker = strtok(NULL, "\r\n ");
 
+        // Save the field value and get its length, to be used for malloc-ing
+        // a new string later
         char* value = linewalker;
         size_t valuelen = strlen(value);
 
+        // Attempt to match the field name on one of the possible field names
+        // If a match is found, copy the value string into the relevant metadata
+        // struct
         if(!strcmp(key, "WARC-Type")) {
             metadata->WARC_Type = malloc(valuelen + 1);
             strcpy(metadata->WARC_Type, value);
@@ -53,7 +65,8 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
         else if(!strcmp(key, "Content-Length")) {
             metadata->Content_Length = malloc(valuelen + 1);
             strcpy(metadata->Content_Length, value);
-            //Assumed to be the last entry in the metadata block
+            // Assumed to be the last entry in the metadata block, so stop
+            // parsing here
             break;
         }
         else {
@@ -62,7 +75,7 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
         }
     }
 
-    //Read one more line to get to the actual content
+    //Read one more line to get to the actual document content
     read = getline(&line, &linelen, fp);
     free(line);
     if(read < 0)

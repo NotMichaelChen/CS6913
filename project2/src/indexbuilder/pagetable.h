@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// Represents the page table structure
+
 typedef struct PageTable PageTable;
 
 PageTable* pagetable_new();

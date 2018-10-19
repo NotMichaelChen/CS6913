@@ -16,14 +16,16 @@ Reader* reader_new(FILE* fp) {
     newreader->fp = fp;
     newreader->status = 0;
 
+    // Get the first line of the document
     char* line = NULL;
     size_t linelen = 0;
     getline(&line, &linelen, newreader->fp);
 
-    //first line doesn't equal what we expect
+    // Set error if first line doesn't equal what we expect
     if(strcmp(line, "WARC/1.0\r\n")) {
         newreader->status = 1;
     }
+    // Otherwise, skip the file metadata
     else {
         //Loop until we find a new document segment
         while(getline(&line, &linelen, newreader->fp) != -1) {
@@ -37,10 +39,11 @@ Reader* reader_new(FILE* fp) {
 }
 
 Document reader_getDocument(Reader* reader) {
+    // If the reader is invalid, don't attempt to read anything
     if(reader->status != 0)
         return (Document) {NULL, NULL, -1};
 
-    //Read metadata
+    // If metadata read failed, set error
     ReaderMetadata metadata;
     int err = reader_readMetadata(&metadata, reader->fp);
     if(err) {
@@ -48,8 +51,9 @@ Document reader_getDocument(Reader* reader) {
         return (Document) {NULL, NULL, -1};
     }
 
-    //Read document
+    // Read document size from the metadata Content_Length field
     int docsize = strtol(metadata.Content_Length, NULL, 10);
+    // Read the rest of the document from the WET file using the docsize var
     char* doctext = malloc(docsize + 1);
     fread(doctext, 1, docsize, reader->fp);
     doctext[docsize] = '\0';
@@ -58,10 +62,12 @@ Document reader_getDocument(Reader* reader) {
     Document doc;
     doc.doc = doctext;
 
+    // Set the url by copying it from the metadata struct
     size_t urllen = strlen(metadata.WARC_Target_URI);
     doc.url = malloc(urllen+1);
     strcpy(doc.url, metadata.WARC_Target_URI);
 
+    // Set docsize
     doc.docsize = docsize;
 
     //Read lines until "WARC/1.0\r\n" is found
