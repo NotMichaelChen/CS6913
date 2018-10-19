@@ -1,7 +1,6 @@
 #include "mergesort.h"
 
 #include <dirent.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -34,9 +33,14 @@ void eraseIntermediates(char* directory, char* outputname) {
     }
 }
 
-int merge(char* directory, char* outputname) {
+int merge(char* directory, char* outputname, size_t buffer) {
     String* dirstr = string_newstr(directory);
-    String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n ");
+    String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n -S ");
+    
+    //64-bit number = 19 chars, null terminator, "b", space
+    char bufsize[22];
+    sprintf(bufsize, "%lub ", buffer);
+    string_appendString(command, bufsize, strlen(bufsize));
 
     DIR *dir;
     struct dirent *ent;

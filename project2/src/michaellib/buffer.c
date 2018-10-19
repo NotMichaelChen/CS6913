@@ -19,7 +19,7 @@ struct Buffer {
 Buffer* buffer_new(size_t size) {
     Buffer* buf = malloc(sizeof(Buffer));
 
-    buf->len = size / 3;
+    buf->len = size;
     buf->buffer = malloc(buf->len);
     if(buf->buffer == NULL) {
         printf("Error, unable to allocate buffer of size %lu\n", size);

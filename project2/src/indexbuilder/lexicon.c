@@ -33,7 +33,7 @@ size_t lexicon_get(Lexicon** lex, char* term) {
     HASH_FIND_STR(*lex, term, ent);
 
     if(ent == NULL) {
-
+        return SIZE_MAX;
     }
 
     return ent->val;
