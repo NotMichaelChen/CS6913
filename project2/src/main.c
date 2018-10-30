@@ -12,14 +12,15 @@
 
 int main(int argc, char *argv[]) {
 
-    if(argc != 4) {
-        printf("Usage: ./indexer [buffersize] [WETdir] [OutputDir]\n");
+    if(argc != 5) {
+        printf("Usage: ./indexer [postingbuffersize] [mergebuffersize] [WETdir] [OutputDir]\n");
     }
 
     else {
-        size_t buffer = strtoull(argv[1], NULL, 0);
-        char* WET = argv[2];
-        char* output = argv[3];
+        size_t postingbuffer = strtoull(argv[1], NULL, 0);
+        size_t mergebuffer = strtoull(argv[2], NULL, 0);
+        char* WET = argv[3];
+        char* output = argv[4];
 
         struct timeval t1, t2;
         double elapsedtime;
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) {
 
         // Initialze document reader, posting generator, and page table
         DirReader* reader = dirreader_new(WET);
-        PostingGenerator* postinggen = postinggen_new(output, buffer);
+        PostingGenerator* postinggen = postinggen_new(output, postingbuffer);
         PageTable* table = pagetable_new();
         Document doc;
 
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]) {
         printf("Merging intermediate files... (%fs)\n", elapsedtime);
 
         // Merge all files output by the posting generator
-        merge(output, "merged", buffer);
+        merge(output, "merged", mergebuffer);
 
         gettimeofday(&t2, NULL);
         elapsedtime = (t2.tv_sec - t1.tv_sec);

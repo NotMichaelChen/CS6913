@@ -1,5 +1,8 @@
 #include "ulongvec.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 struct ULongVector {
     uint64_t* buf;
     size_t capacity;
@@ -17,14 +20,21 @@ ULongVector* ulongvector_new() {
 }
 
 void ulongvector_append(ULongVector* vec, uint64_t num) {
-    if (vec->size == 0) {
+    if (vec->capacity == 0) {
         vec->capacity = 1;
         vec->buf = malloc(sizeof(uint64_t) * vec->capacity);
     }
 
     if (vec->size == vec->capacity) {
         vec->capacity *= 2;
-        vec->buf = realloc(vec->buf, sizeof(uint64_t) * vec->capacity);
+        uint64_t* tmp = realloc(vec->buf, sizeof(uint64_t) * vec->capacity);
+        if(tmp == NULL) {
+            printf("Error: realloc call in ulongvector_append failed\n");
+            exit(1);
+        }
+        else {
+            vec->buf = tmp;
+        }
     }
 
     vec->buf[vec->size] = num;

@@ -2,8 +2,8 @@
 
 #include "lib/uthash.h"
 
-IntermediatePostingList docparser_getPostings(Document doc) {
-    
+MemPostingList docparser_getPostings(Document doc, size_t docID) {
+
     // Represent an entry in the term-frequency dictionary
     struct frequency {
         char* term;
@@ -60,9 +60,9 @@ IntermediatePostingList docparser_getPostings(Document doc) {
 
     // Construct the postinglist and allocate enough space to handle all of the
     // terms
-    IntermediatePostingList postinglist;
+    MemPostingList postinglist;
     postinglist.len = insertioncount;
-    postinglist.head = malloc(sizeof(IntermediatePosting) * insertioncount);
+    postinglist.head = malloc(sizeof(MemPosting) * insertioncount);
 
     struct frequency* f;
     struct frequency* tmp;
@@ -72,7 +72,7 @@ IntermediatePostingList docparser_getPostings(Document doc) {
         // Make a copy of the term in the entry
         String* str = string_newstr(f->term);
         // Insert a new posting in the next available position
-        postinglist.head[insertindex] = (IntermediatePosting) {str, f->freq};
+        postinglist.head[insertindex] = (MemPosting) {str, docID, f->freq};
 
         // Remove the entry from the dictionary
         HASH_DEL(freqdict, f);
@@ -89,7 +89,7 @@ IntermediatePostingList docparser_getPostings(Document doc) {
     return postinglist;
 }
 
-void docparser_freeIntermPostingList(IntermediatePostingList postinglist) {
+void docparser_freePostingList(MemPostingList postinglist) {
     // Iterate over every posting and free its term
     for(size_t i = 0; i < postinglist.len; i++) {
         string_free(postinglist.head[i].term);

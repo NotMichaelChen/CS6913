@@ -47,5 +47,6 @@ void pagetable_free(PageTable* table) {
         string_free(table->list[i].url);
     }
 
+    free(table->list);
     free(table);
 }

@@ -7,16 +7,16 @@
 // intermediate postings contain only the term and frequency, since we assign
 // the docID in a higher level function.
 
-// Represents an intermediate posting list allocated on the heap
-typedef struct IntermediatePostingList {
-    IntermediatePosting* head;
+// Represents a posting list allocated on the heap
+typedef struct {
+    MemPosting* head;
     size_t len;
-} IntermediatePostingList;
+} MemPostingList;
 
 // Gets the intermediate posting list from a document
-IntermediatePostingList docparser_getPostings(Document doc);
+MemPostingList docparser_getPostings(Document doc, size_t docID);
 
 // Frees the intermediate posting list, since the actual posting list array is
 // allocated on the heap, and each posting contains a malloc'd string which
 // must be freed.
-void docparser_freeIntermPostingList(IntermediatePostingList postinglist);
+void docparser_freePostingList(MemPostingList postinglist);

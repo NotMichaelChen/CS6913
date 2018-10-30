@@ -21,16 +21,16 @@ void writePostingList(MemPosting* postinglist, size_t len, FILE* fp) {
         );
     }
 
-    // Frees the posting list once it's done writing it out
+    // Frees each string in the posting list once it's done writing it out
     for(size_t i = 0; i < len; i++) {
         string_free(postinglist[i].term);
     }
-
-    free(postinglist);
 }
 
 struct PostingGenerator {
-    Buffer* buf;
+    MemPosting* postinglist;
+    uint32_t listindex;
+    uint32_t listsize;
 
     uint32_t nextdocID;
 
@@ -43,7 +43,9 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     PostingGenerator* postinggen = malloc(sizeof(PostingGenerator));
     
     postinggen->dir = string_newstr(directory);
-    postinggen->buf = buffer_new(buffersize);
+    postinggen->postinglist = malloc(sizeof(MemPosting) * buffersize);
+    postinggen->listsize = buffersize;
+    postinggen->listindex = 0;
 
     postinggen->nextdocID = 0;
     postinggen->nextfilenum = 0;
@@ -54,51 +56,25 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
 }
 
 void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
-    // Generate the intermediate posting list from the document
-    IntermediatePostingList postinglist = docparser_getPostings(doc);
-
     // Get the next available docID
     size_t docID = postinggen->nextdocID;
     postinggen->nextdocID += 1;
 
-    for(int i = 0; i < postinglist.len; i++) {
-        // Represents how much space the byte-representation of a
-        // term-docID-freq posting would take
-        // Two size_t ints for docID + freq, then the length of the term + null
-        // terminating character
-        size_t totalsize = sizeof(size_t) * 2 + string_getLen(postinglist.head[i].term) + 1;
-        // Allocate the byte array
-        char* line = malloc(totalsize);
-        
-        // Copy the string into the byte array. Copy the null terminator too
-        memcpy(line, string_getString(postinglist.head[i].term), string_getLen(postinglist.head[i].term) + 1);
+    // Generate the intermediate posting list from the document
+    MemPostingList postinglist = docparser_getPostings(doc, docID);
 
-        // Find out where to write the docID. Should be right after the term's
-        // null terminator
-        char* nextloc = line + string_getLen(postinglist.head[i].term) + 1;
-        // Copy the docID there
-        memcpy(nextloc, &docID, sizeof(docID));
-        
-        // Find out where to write the freq by skipping over how big the docID
-        // is
-        nextloc += sizeof(docID);
-        // Copy the frequency there
-        memcpy(nextloc, &(postinglist.head[i].freq), sizeof(postinglist.head[i].freq));
-
-        // If there's not enough space to save this posting in the buffer, flush
-        // it out
-        if(totalsize > buffer_getRemaining(postinggen->buf)) {
-            postinggen_flush(postinggen);
-        }
-
-        // Add the posting to the buffer
-        buffer_write(postinggen->buf, line, totalsize);
-
-        free(line);
+    // Write out the posting list buffer if there's no more room
+    if(postinggen->listindex + postinglist.len > postinggen->listsize) {
+        postinggen_flush(postinggen);
     }
 
-    // Free the posting list once we're done with it
-    docparser_freeIntermPostingList(postinglist);
+    // Copy the postinglist into the buffer
+    memcpy(&postinggen->postinglist[postinggen->listindex], postinglist.head, sizeof(MemPosting) * postinglist.len);
+    postinggen->listindex += postinglist.len;
+
+    // Just free the posting buffer, not the actual strings inside the postings
+    // Those are still referenced in the postinglist buffer
+    free(postinglist.head);
 }
 
 void postinggen_flush(PostingGenerator* postinggen) {
@@ -112,15 +88,14 @@ void postinggen_flush(PostingGenerator* postinggen) {
     // Open the file
     FILE* fp = fopen(filepath, "w");
 
-    // Get a list of term-docID-freq postings from the buffer
-    size_t postinglistlen = 0;
-    MemPosting* postinglist = buffer_getPostings(postinggen->buf, &postinglistlen);
-
     // qsort the list of postings
-    qsort(postinglist, postinglistlen, sizeof(MemPosting), memposting_cmp);
+    qsort(postinggen->postinglist, postinggen->listindex, sizeof(MemPosting), memposting_cmp);
 
     // Write out that posting list
-    writePostingList(postinglist, postinglistlen, fp);
+    writePostingList(postinggen->postinglist, postinggen->listindex, fp);
+
+    // No need to free posting list: writePostingList does that for us
+    postinggen->listindex = 0;
 
     fclose(fp);
 
@@ -132,6 +107,6 @@ void postinggen_flush(PostingGenerator* postinggen) {
 
 void postinggen_free(PostingGenerator* postinggen) {
     string_free(postinggen->dir);
-    buffer_free(postinggen->buf);
+    free(postinggen->postinglist);
     free(postinggen);
 }
