@@ -9,7 +9,7 @@ typedef struct ByteVec {
 } ByteVec;
 
 ByteVec* bytevec_new() {
-    ByteVec* vec = malloc(sizeof(ByteVec*));
+    ByteVec* vec = malloc(sizeof(ByteVec));
 
     vec->buffer = NULL;
     vec->size = 0;

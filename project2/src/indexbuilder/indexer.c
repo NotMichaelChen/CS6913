@@ -34,7 +34,7 @@ void writePostingData(FILE* fp, Lexicon** lex, ULongVector* vec, String* term) {
         //TODO: make constant
         if(blockindex == 128) {
             //Add to lastdocid
-            ulongvector_append(lastdocid, docIDblock[127]);
+            ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
             size_t sizebefore, sizeafter;
             String* compressednum;
@@ -66,7 +66,7 @@ void writePostingData(FILE* fp, Lexicon** lex, ULongVector* vec, String* term) {
     //Write out last two blocks if they have stuff in them
     if(blockindex != 0) {
         //Add to lastdocid
-        ulongvector_append(lastdocid, docIDblock[127]);
+        ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
         size_t sizebefore, sizeafter;
         String* compressednum;
