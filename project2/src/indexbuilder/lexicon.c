@@ -4,7 +4,8 @@
 
 struct Lexicon {
     char* key;
-    size_t val;
+    size_t pos;
+    size_t metasize;
     UT_hash_handle hh;
 };
 
@@ -12,7 +13,7 @@ Lexicon* lexicon_new() {
     return NULL;
 }
 
-void lexicon_insert(Lexicon** lex, char* term, size_t termlen, size_t pos) {
+void lexicon_insert(Lexicon** lex, char* term, size_t termlen, size_t pos, size_t metasize) {
     Lexicon* ent;
 
     HASH_FIND_STR(*lex, term, ent);
@@ -21,7 +22,8 @@ void lexicon_insert(Lexicon** lex, char* term, size_t termlen, size_t pos) {
         ent = malloc(sizeof(Lexicon));
         ent->key = malloc(termlen+1);
         strcpy(ent->key, term);
-        ent->val = pos;
+        ent->pos = pos;
+        ent->metasize = metasize;
         HASH_ADD_KEYPTR(hh, *lex, ent->key, termlen, ent);
     }
     // Do nothing if term already encountered (should not happen)
@@ -36,7 +38,18 @@ size_t lexicon_get(Lexicon** lex, char* term) {
         return SIZE_MAX;
     }
 
-    return ent->val;
+    return ent->pos;
+}
+
+size_t lexicon_getmetasize(Lexicon** lex, char* term) {
+    Lexicon* ent;
+    HASH_FIND_STR(*lex, term, ent);
+
+    if(ent == NULL) {
+        return SIZE_MAX;
+    }
+
+    return ent->metasize;
 }
 
 void lexicon_dump(Lexicon** lex, FILE* fp) {
@@ -46,7 +59,9 @@ void lexicon_dump(Lexicon** lex, FILE* fp) {
     HASH_ITER(hh, *lex, iter, tmp) {
         fputs(iter->key, fp);
         fputc(0, fp);
-        fwrite(&iter->val, sizeof(iter->val), 1, fp);
+        //TODO: compress?
+        fwrite(&iter->pos, sizeof(iter->pos), 1, fp);
+        fwrite(&iter->metasize, sizeof(iter->metasize), 1, fp);
 
         HASH_DEL(*lex, iter);
 

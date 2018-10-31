@@ -13,7 +13,7 @@ src = [
 	'src/reader/metareader.c',
 	'src/reader/reader.c',
 	'src/reader/dirreader.c',
-	'src/indexbuilder/naive/indexer.c',
+	'src/indexbuilder/indexer.c',
 	'src/indexbuilder/lexicon.c',
 	'src/mergesort/mergesort.c',
 	'src/intermfilegen/docparser.c',
@@ -23,6 +23,7 @@ src = [
 	'src/main.c',
 	'src/indexbuilder/pagetable.c',
 	'src/michaellib/buffer.c',
+	'src/michaellib/bytevec.c',
 ]
 
 executable('out', src, dependencies: m_dep)

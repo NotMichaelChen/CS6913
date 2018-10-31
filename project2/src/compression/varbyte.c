@@ -19,6 +19,20 @@ inline String* varbyte_encode(uint64_t num) {
     return string_newstr((char *) bytestream);
 }
 
+inline ByteVec* varbyte_encodeblock(uint64_t* nums, size_t count) {
+    ByteVec* vec = bytevec_new();
+
+    String* compressednum;
+
+    for(size_t i = 0; i < count; i++) {
+        compressednum = varbyte_encode(nums[i]);
+        bytevec_appendstr(vec, compressednum);
+        string_free(compressednum);
+    }
+
+    return vec;
+}
+
 inline uint64_t varbyte_decode(char* bytestream) {
     uint64_t num = 0;
     uint8_t shiftamt = 0;

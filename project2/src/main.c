@@ -7,9 +7,11 @@
 #include "michaellib/string.h"
 #include "intermfilegen/filegen.h"
 #include "mergesort/mergesort.h"
-#include "indexbuilder/naive/indexer.h"
+#include "indexbuilder/indexer.h"
 #include "indexbuilder/pagetable.h"
 
+//TODO: run code through linter
+//TODO: make docID, freq types global
 int main(int argc, char *argv[]) {
 
     if(argc != 5) {
@@ -35,7 +37,8 @@ int main(int argc, char *argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        while(1) {
+        int i = 0;
+        while(i < 200) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -44,6 +47,7 @@ int main(int argc, char *argv[]) {
             postinggen_addDoc(postinggen, doc);
             
             reader_freedoc(&doc);
+            i++;
         }
         
         // Empty out any postings left in the posting generator
@@ -63,7 +67,7 @@ int main(int argc, char *argv[]) {
         printf("Building final index... (%fs)\n", elapsedtime);
 
         // Build the index, which produces a lexicon
-        Lexicon* lex = naive_buildIndex(output, "merged", "index");
+        Lexicon* lex = block_buildIndex(output, "merged", "index");
         
         // Write out the lexicon and pagetable
         FILE* lfp = fopen("output/lexicon", "wb");
