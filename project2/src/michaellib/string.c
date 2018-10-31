@@ -8,14 +8,6 @@ struct String {
     char* buf;
 };
 
-String* string_new() {
-    String* str = malloc(sizeof(String));
-    str->len = 0;
-    str->buf = NULL;
-
-    return str;
-}
-
 String* string_newstr(char* str) {
     String* newstr = malloc(sizeof(String));
 

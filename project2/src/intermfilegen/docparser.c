@@ -64,8 +64,8 @@ MemPostingList docparser_getPostings(Document doc, size_t docID) {
     postinglist.len = insertioncount;
     postinglist.head = malloc(sizeof(MemPosting) * insertioncount);
 
-    struct frequency* f;
-    struct frequency* tmp;
+    struct frequency* f = NULL;
+    struct frequency* tmp = NULL;
     size_t insertindex = 0;
     // Iterate over every entry in the dictionary
     HASH_ITER(hh, freqdict, f, tmp) {

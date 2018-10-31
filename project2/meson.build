@@ -22,7 +22,6 @@ src = [
 	'src/posting.c',
 	'src/main.c',
 	'src/indexbuilder/pagetable.c',
-	'src/michaellib/buffer.c',
 	'src/michaellib/bytevec.c',
 ]
 

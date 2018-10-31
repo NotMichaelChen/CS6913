@@ -38,7 +38,7 @@ void pagetable_add(PageTable* table, char* url, size_t pagesize) {
 
 void pagetable_dump(PageTable* table, FILE* fp) {
     for(size_t i = 0; i < table->size; i++) {
-        fprintf(fp, "%lu %s %lu\n", i, string_getString(table->list[i].url), table->list[i].pagesize);
+        fprintf(fp, "%zu %s %zu\n", i, string_getString(table->list[i].url), table->list[i].pagesize);
     }
 }
 

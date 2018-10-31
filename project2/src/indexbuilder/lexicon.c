@@ -54,8 +54,9 @@ size_t lexicon_getmetasize(Lexicon** lex, char* term) {
 
 void lexicon_dump(Lexicon** lex, FILE* fp) {
 
-    Lexicon* iter;
-    Lexicon* tmp;
+    Lexicon* iter = NULL;
+    Lexicon* tmp = NULL;
+
     HASH_ITER(hh, *lex, iter, tmp) {
         fputs(iter->key, fp);
         fputc(0, fp);
@@ -71,8 +72,8 @@ void lexicon_dump(Lexicon** lex, FILE* fp) {
 }
 
 void lexicon_free(Lexicon** lex) {
-    Lexicon* iter;
-    Lexicon* tmp;
+    Lexicon* iter = NULL;
+    Lexicon* tmp = NULL;
 
     HASH_ITER(hh, *lex, iter, tmp) {
         HASH_DEL(*lex, iter);

@@ -6,7 +6,6 @@
 
 #include "michaellib/string.h"
 #include "docparser.h"
-#include "michaellib/buffer.h"
 #include "michaellib/utility.h"
 
 // Private utility function that writes a list of postings to disk. Assumes the

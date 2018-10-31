@@ -4,7 +4,6 @@
 
 typedef struct String String;
 
-String* string_new();
 String* string_newstr(char* str);
 
 char* string_getString(String* str);

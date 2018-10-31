@@ -37,8 +37,7 @@ int main(int argc, char *argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        int i = 0;
-        while(i < 200) {
+        while(1) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -47,7 +46,6 @@ int main(int argc, char *argv[]) {
             postinggen_addDoc(postinggen, doc);
             
             reader_freedoc(&doc);
-            i++;
         }
         
         // Empty out any postings left in the posting generator

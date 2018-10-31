@@ -10,11 +10,8 @@ int reader_readMetadata(ReaderMetadata* metadata, FILE* fp) {
 
     // Read line by line
     while((read = getline(&line, &linelen, fp)) != -1) {
-        // Save the beginning of the line, since we're about to strtok it
-        char* linewalker = line;
-
         // Attempt to tokenize the field name. Return failure if unable to
-        linewalker = strtok(line, ":\r\n ");
+        char* linewalker = strtok(line, ":\r\n ");
         if(linewalker == NULL)
             return 1;
 

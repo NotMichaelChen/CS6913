@@ -138,10 +138,7 @@ Lexicon* block_generateIndex(FILE* ifp, FILE* ofp) {
     // Read through the intermediate file line by line
     while ((read = getline(&line, &linelen, ifp)) != -1) {
         // Represents the pointer used to tokenize the line
-        char* linewalker = line;
-
-        // Tokenize the term
-        linewalker = strtok(line, "\t\r\n ");
+        char* linewalker = strtok(line, "\t\r\n ");
         if(linewalker == NULL)
             return NULL;
         

@@ -10,8 +10,8 @@
 // Helper function that erases everything in a directory other than "outputname"
 void eraseIntermediates(char* directory, char* outputname) {
     DIR *dir;
-    struct dirent *ent;
     if((dir = opendir(directory)) != NULL) {
+        struct dirent *ent;
         // Iterate through the directory
         while((ent = readdir(dir)) != NULL) {
 
@@ -47,12 +47,12 @@ int merge(char* directory, char* outputname, size_t buffer) {
     //64-bit number = 19 chars, null terminator, "b", space. Sums up to 22 bytes
     char bufsize[22];
     // buffer argument is a number followed by b e.g. 1000b = 1kb
-    sprintf(bufsize, "%lub ", buffer);
+    sprintf(bufsize, "%zub ", buffer);
     string_appendString(command, bufsize, strlen(bufsize));
 
     DIR *dir;
-    struct dirent *ent;
     if((dir = opendir(directory)) != NULL) {
+        struct dirent *ent;
         // Iterate through directory
         while((ent = readdir(dir)) != NULL) {
             // Skip "." and ".."
