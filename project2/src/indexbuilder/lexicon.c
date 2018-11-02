@@ -2,37 +2,43 @@
 
 #include "lib/uthash.h"
 
-struct Lexicon {
+typedef struct {
     char* key;
     size_t pos;
     size_t metasize;
     UT_hash_handle hh;
+} LexiconEntry;
+
+struct Lexicon {
+    LexiconEntry* dict;
 };
 
 Lexicon* lexicon_new() {
-    return NULL;
+    Lexicon* lex = malloc(sizeof(Lexicon));
+    lex->dict = NULL;
+    return lex;
 }
 
-void lexicon_insert(Lexicon** lex, char* term, size_t termlen, size_t pos, size_t metasize) {
-    Lexicon* ent;
+void lexicon_insert(Lexicon* lex, char* term, size_t termlen, size_t pos, size_t metasize) {
+    LexiconEntry* ent;
 
-    HASH_FIND_STR(*lex, term, ent);
+    HASH_FIND_STR(lex->dict, term, ent);
 
     if(ent == NULL) {
-        ent = malloc(sizeof(Lexicon));
+        ent = malloc(sizeof(LexiconEntry));
         ent->key = malloc(termlen+1);
         strcpy(ent->key, term);
         ent->pos = pos;
         ent->metasize = metasize;
-        HASH_ADD_KEYPTR(hh, *lex, ent->key, termlen, ent);
+        HASH_ADD_KEYPTR(hh, lex->dict, ent->key, termlen, ent);
     }
     // Do nothing if term already encountered (should not happen)
     //TODO: maybe raise some error here?
 }
 
-size_t lexicon_get(Lexicon** lex, char* term) {
-    Lexicon* ent;
-    HASH_FIND_STR(*lex, term, ent);
+size_t lexicon_get(Lexicon* lex, char* term) {
+    LexiconEntry* ent;
+    HASH_FIND_STR(lex->dict, term, ent);
 
     if(ent == NULL) {
         return SIZE_MAX;
@@ -41,9 +47,9 @@ size_t lexicon_get(Lexicon** lex, char* term) {
     return ent->pos;
 }
 
-size_t lexicon_getmetasize(Lexicon** lex, char* term) {
-    Lexicon* ent;
-    HASH_FIND_STR(*lex, term, ent);
+size_t lexicon_getmetasize(Lexicon* lex, char* term) {
+    LexiconEntry* ent;
+    HASH_FIND_STR(lex->dict, term, ent);
 
     if(ent == NULL) {
         return SIZE_MAX;
@@ -52,33 +58,35 @@ size_t lexicon_getmetasize(Lexicon** lex, char* term) {
     return ent->metasize;
 }
 
-void lexicon_dump(Lexicon** lex, FILE* fp) {
+void lexicon_dump(Lexicon* lex, FILE* fp) {
 
-    Lexicon* iter = NULL;
-    Lexicon* tmp = NULL;
+    LexiconEntry* iter = NULL;
+    LexiconEntry* tmp = NULL;
 
-    HASH_ITER(hh, *lex, iter, tmp) {
+    HASH_ITER(hh, lex->dict, iter, tmp) {
         fputs(iter->key, fp);
         fputc(0, fp);
         //TODO: compress?
         fwrite(&iter->pos, sizeof(iter->pos), 1, fp);
         fwrite(&iter->metasize, sizeof(iter->metasize), 1, fp);
 
-        HASH_DEL(*lex, iter);
+        HASH_DEL(lex->dict, iter);
 
         free(iter->key);
         free(iter);
     }
 }
 
-void lexicon_free(Lexicon** lex) {
-    Lexicon* iter = NULL;
-    Lexicon* tmp = NULL;
+void lexicon_free(Lexicon* lex) {
+    LexiconEntry* iter = NULL;
+    LexiconEntry* tmp = NULL;
 
-    HASH_ITER(hh, *lex, iter, tmp) {
-        HASH_DEL(*lex, iter);
+    HASH_ITER(hh, lex->dict, iter, tmp) {
+        HASH_DEL(lex->dict, iter);
 
         free(iter->key);
         free(iter);
     }
+
+    free(lex);
 }

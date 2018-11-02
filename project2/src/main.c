@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        while(1) {
+        for(int i = 0; i < 200; i++) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
         
         // Write out the lexicon and pagetable
         FILE* lfp = fopen("output/lexicon", "wb");
-        lexicon_dump(&lex, lfp);
+        lexicon_dump(lex, lfp);
         fclose(lfp);
-        lexicon_free(&lex);
+        lexicon_free(lex);
 
         FILE* tfp = fopen("output/pagetable", "wb");
         pagetable_dump(table, tfp);

@@ -10,7 +10,7 @@
 #include "compression/varbyte.h"
 
 // Write a vector of numbers to a file as a block-based posting list
-void writePostingData(FILE* fp, Lexicon** lex, ULongVector* vec, String* term) {
+void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
     if(ulongvector_size(vec) % 2 != 0) {
         fprintf(stderr, "Error: vec of numbers to write as posting list not even\n");
         exit(1);
@@ -152,7 +152,7 @@ Lexicon* block_generateIndex(FILE* ifp, FILE* ofp) {
                 currentterm = string_newstr(linewalker);
             }
             else {
-                writePostingData(ofp, &lex, postinglist, currentterm);
+                writePostingData(ofp, lex, postinglist, currentterm);
 
                 // Empty posting list
                 ulongvector_clear(postinglist);
@@ -174,7 +174,7 @@ Lexicon* block_generateIndex(FILE* ifp, FILE* ofp) {
 
     // Write out rest of posting list
     if(ulongvector_size(postinglist) != 0)
-        writePostingData(ofp, &lex, postinglist, currentterm);
+        writePostingData(ofp, lex, postinglist, currentterm);
 
     free(line);
     string_free(currentterm);
