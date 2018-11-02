@@ -31,7 +31,7 @@ struct PostingGenerator {
     uint32_t listindex;
     uint32_t listsize;
 
-    uint32_t nextdocID;
+    docID_t nextdocID;
 
     String* dir;
     int err;
@@ -56,7 +56,7 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
 
 void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     // Get the next available docID
-    size_t docID = postinggen->nextdocID;
+    docID_t docID = postinggen->nextdocID;
     postinggen->nextdocID += 1;
 
     // Generate the intermediate posting list from the document

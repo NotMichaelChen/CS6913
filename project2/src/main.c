@@ -10,8 +10,6 @@
 #include "indexbuilder/indexer.h"
 #include "indexbuilder/pagetable.h"
 
-//TODO: run code through linter
-//TODO: make docID, freq types global
 int main(int argc, char *argv[]) {
 
     if(argc != 5) {

@@ -2,12 +2,12 @@
 
 #include "lib/uthash.h"
 
-MemPostingList docparser_getPostings(Document doc, size_t docID) {
+MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
     // Represent an entry in the term-frequency dictionary
     struct frequency {
         char* term;
-        uint32_t freq;
+        freq_t freq;
         UT_hash_handle hh;
     };
 

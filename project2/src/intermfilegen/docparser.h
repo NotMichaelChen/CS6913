@@ -14,7 +14,7 @@ typedef struct {
 } MemPostingList;
 
 // Gets the intermediate posting list from a document
-MemPostingList docparser_getPostings(Document doc, size_t docID);
+MemPostingList docparser_getPostings(Document doc, docID_t docID);
 
 // Frees the intermediate posting list, since the actual posting list array is
 // allocated on the heap, and each posting contains a malloc'd string which

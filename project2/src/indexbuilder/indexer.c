@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "global.h"
 #include "michaellib/string.h"
 #include "michaellib/ulongvec.h"
 #include "michaellib/bytevec.h"
@@ -21,8 +22,8 @@ void writePostingData(FILE* fp, Lexicon** lex, ULongVector* vec, String* term) {
     ByteVec* postingdata = bytevec_new();
 
     //TODO: make 128 constant
-    size_t docIDblock[128];
-    size_t freqblock[128];
+    docID_t docIDblock[128];
+    freq_t freqblock[128];
     size_t blockindex = 0;
 
     for(size_t i = 0; i < ulongvector_size(vec); i += 2) {
