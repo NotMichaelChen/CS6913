@@ -19,11 +19,28 @@ void minheap_attemptInsert(MinHeap* heap, double num) {
         //Swap with end to remove min element
         heap->buf[0] = heap->buf[heap->len - 1];
 
+        // trickle-down
+        size_t index = 0;
+        while(index*2+2 < heap->len) {
+            size_t swapindex = heap->buf[index*2+1] > heap->buf[index*2+2] ?
+                index*2+2 : index*2+1;
+            
+            if(heap->buf[index] > heap->buf[swapindex]) {
+                double tmp = heap->buf[index];
+                heap->buf[index] = heap->buf[swapindex];
+                heap->buf[swapindex] = tmp;
+
+                index = swapindex;
+            }
+            else
+                break;
+        }
+
         //Place new num at end
         heap->buf[heap->len - 1] = num;
 
         // trickle-up
-        size_t index = heap->len - 1;
+        index = heap->len - 1;
         while(index != 0 && heap->buf[(index - 1) / 2] > heap->buf[index]) {
             double tmp = heap->buf[index];
             heap->buf[index] = heap->buf[(index - 1) / 2];
