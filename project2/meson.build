@@ -25,6 +25,7 @@ src = [
 	'src/michaellib/bytevec.c',
 	'src/query/listpointer.c',
 	'src/michaellib/minheap.c',
+	'src/query/DAAT.c',
 ]
 
 executable('out', src, dependencies: m_dep)
