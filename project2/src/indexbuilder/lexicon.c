@@ -36,7 +36,7 @@ void lexicon_insert(Lexicon* lex, char* term, size_t termlen, size_t pos, size_t
     //TODO: maybe raise some error here?
 }
 
-size_t lexicon_get(Lexicon* lex, char* term) {
+size_t lexicon_getpos(Lexicon* lex, char* term) {
     LexiconEntry* ent;
     HASH_FIND_STR(lex->dict, term, ent);
 

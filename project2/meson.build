@@ -23,6 +23,7 @@ src = [
 	'src/main.c',
 	'src/indexbuilder/pagetable.c',
 	'src/michaellib/bytevec.c',
+	'src/query/listpointer.c',
 ]
 
 executable('out', src, dependencies: m_dep)

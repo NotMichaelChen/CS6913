@@ -33,7 +33,7 @@ inline ByteVec* varbyte_encodeblock(uint64_t* nums, size_t count) {
     return vec;
 }
 
-inline uint64_t varbyte_decode(char* bytestream) {
+inline uint64_t varbyte_decode(uint8_t* bytestream) {
     uint64_t num = 0;
     uint8_t shiftamt = 0;
     uint8_t* walker = (uint8_t*) bytestream;
@@ -46,4 +46,28 @@ inline uint64_t varbyte_decode(char* bytestream) {
     num += (*walker & 127) << shiftamt;
 
     return num;
+}
+
+inline ULongVector* varbyte_decodeStream(uint8_t* bytestream, size_t len) {
+    ULongVector* vec = ulongvector_new();
+
+    uint8_t* walker = bytestream;
+
+    while(walker - bytestream < len) {
+        uint64_t num = 0;
+        uint8_t shiftamt = 0;
+
+        while(*walker < 128) {
+            num += *walker << shiftamt;
+            shiftamt += 7;
+            walker++;
+        }
+
+        num += (*walker & 127) << shiftamt;
+        walker++;
+
+        ulongvector_append(vec, num);
+    }
+
+    return vec;
 }
