@@ -2,9 +2,8 @@
 
 #include "BM25.h"
 #include "listpointer.h"
-#include "michaellib/minheap.h"
 
-void DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FILE* fp) {
+MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FILE* fp) {
     //Construct list that determines how many docs contain each term
     uint32_t* docscontaining = malloc(sizeof (uint32_t) * termcount);
     //Construct list pointers
@@ -51,7 +50,7 @@ void DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FI
                 pagetable_len(pagetable)
             );
 
-            minheap_attemptInsert(heap, score);
+            minheap_attemptInsert(heap, (HeapEntry) {score, docID});
 
             free(frequencies);
             docID++;
@@ -64,4 +63,6 @@ void DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FI
 
     free(lps);
     free(docscontaining);
+
+    return heap;
 }
