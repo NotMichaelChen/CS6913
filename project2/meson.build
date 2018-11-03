@@ -24,6 +24,7 @@ src = [
 	'src/indexbuilder/pagetable.c',
 	'src/michaellib/bytevec.c',
 	'src/query/listpointer.c',
+	'src/michaellib/minheap.c',
 ]
 
 executable('out', src, dependencies: m_dep)
