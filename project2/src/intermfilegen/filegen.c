@@ -54,7 +54,7 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffersize) {
     return postinggen;
 }
 
-void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
+size_t postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     // Get the next available docID
     docID_t docID = postinggen->nextdocID;
     postinggen->nextdocID += 1;
@@ -74,6 +74,8 @@ void postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     // Just free the posting buffer, not the actual strings inside the postings
     // Those are still referenced in the postinglist buffer
     free(postinglist.head);
+
+    return postinglist.termcount;
 }
 
 void postinggen_flush(PostingGenerator* postinggen) {

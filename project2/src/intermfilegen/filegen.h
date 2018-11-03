@@ -14,7 +14,7 @@ PostingGenerator* postinggen_new(char* directory, uint32_t buffer);
 
 // Add a document to the intermediate collection. Should be linked directly with
 // the dirreader object's getDocument function
-void postinggen_addDoc(PostingGenerator* postinggen, Document doc);
+size_t postinggen_addDoc(PostingGenerator* postinggen, Document doc);
 // Flushes the posting generator's buffer to disk.
 void postinggen_flush(PostingGenerator* postinggen);
 

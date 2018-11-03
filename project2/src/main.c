@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
             if(dirreader_getStatus(reader))
                 break;
             
-            pagetable_add(table, doc.url, doc.docsize);
-            postinggen_addDoc(postinggen, doc);
+            size_t termcount = postinggen_addDoc(postinggen, doc);
+            pagetable_add(table, doc.url, termcount);
             
             reader_freedoc(&doc);
         }

@@ -26,7 +26,9 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
     char* docwalker = strtok(tempdoc, " \r\n\t");
 
     // Continue tokenizing until there's no more tokens
+    size_t tokencount = 0;
     while(docwalker != NULL) {
+        tokencount++;
         // Get the length of the token/term
         size_t docwalkerlen = strlen(docwalker);
 
@@ -63,6 +65,7 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
     MemPostingList postinglist;
     postinglist.len = insertioncount;
     postinglist.head = malloc(sizeof(MemPosting) * insertioncount);
+    postinglist.termcount = tokencount;
 
     struct frequency* f = NULL;
     struct frequency* tmp = NULL;

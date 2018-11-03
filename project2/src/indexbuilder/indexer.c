@@ -104,7 +104,7 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
                         bytevec_len(compressedblocksizes) + bytevec_len(compressedlastdocid);
     
     //Add lexicon entry
-    lexicon_insert(lex, string_getString(term), string_getLen(term), ftell(fp), metasize);
+    lexicon_insert(lex, string_getString(term), string_getLen(term), ftell(fp), metasize, ulongvector_size(vec) / 2);
 
     //Write everything out
     fwrite(string_getString(blocksizeslen), 1, string_getLen(blocksizeslen), fp);

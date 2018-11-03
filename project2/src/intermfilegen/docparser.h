@@ -11,6 +11,7 @@
 typedef struct {
     MemPosting* head;
     size_t len;
+    size_t termcount;
 } MemPostingList;
 
 // Gets the intermediate posting list from a document
