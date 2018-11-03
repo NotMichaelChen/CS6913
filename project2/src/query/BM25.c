@@ -9,7 +9,7 @@ double IDF(unsigned int totaldocs, unsigned int docscontaining) {
     return log10(numerator / denominator);
 }
 
-double BMS25(freq_t* freqs, size_t freqcount, uint32_t* docscontaining,
+double BM25(freq_t* freqs, size_t freqcount, uint32_t* docscontaining,
     size_t docscontaininglen, uint32_t doclength, double avgdoclength,
     uint32_t totaldocs)
 {

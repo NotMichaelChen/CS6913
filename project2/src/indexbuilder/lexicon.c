@@ -61,6 +61,17 @@ size_t lexicon_getmetasize(Lexicon* lex, char* term) {
     return ent->metasize;
 }
 
+size_t lexicon_getlistlen(Lexicon* lex, char* term) {
+    LexiconEntry* ent;
+    HASH_FIND_STR(lex->dict, term, ent);
+
+    if(ent == NULL) {
+        return SIZE_MAX;
+    }
+
+    return ent->listlen;
+}
+
 void lexicon_dump(Lexicon* lex, FILE* fp) {
 
     LexiconEntry* iter = NULL;

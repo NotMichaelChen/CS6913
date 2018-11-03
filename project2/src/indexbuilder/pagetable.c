@@ -4,7 +4,7 @@
 
 typedef struct TableEntry {
     String* url;
-    size_t pagelength;
+    uint32_t pagelength;
 } TableEntry;
 
 struct PageTable {
@@ -37,6 +37,18 @@ void pagetable_add(PageTable* table, char* url, size_t pagelength) {
     table->avgpagelength += (pagelength - table->avgpagelength) / (table->size+1);
 
     table->size++;
+}
+
+uint32_t pagetable_getPageLength(PageTable* table, size_t docID) {
+    return table->list[docID].pagelength;
+}
+
+double pagetable_getAvgPageLength(PageTable* table) {
+    return table->avgpagelength;
+}
+
+size_t pagetable_len(PageTable* table) {
+    return table->size;
 }
 
 void pagetable_dump(PageTable* table, FILE* fp) {

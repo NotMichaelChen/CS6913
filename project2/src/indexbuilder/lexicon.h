@@ -12,8 +12,10 @@ typedef struct Lexicon Lexicon;
 Lexicon* lexicon_new();
 
 void lexicon_insert(Lexicon* lex, char* term, size_t termlen, size_t pos, size_t metasize, size_t docscontaining);
+//TODO: determine if combining the getter functions would be better
 size_t lexicon_getpos(Lexicon* lex, char* term);
 size_t lexicon_getmetasize(Lexicon* lex, char* term);
+size_t lexicon_getlistlen(Lexicon* lex, char* term);
 void lexicon_dump(Lexicon* lex, FILE* fp);
 
 void lexicon_free(Lexicon* lex);

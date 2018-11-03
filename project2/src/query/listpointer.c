@@ -172,7 +172,7 @@ freq_t listpointer_getFreq(ListPointer* lp) {
     return ulongvector_get(lp->freqblock, lp->docIDindex);
 }
 
-void listpointer_free(ListPointer* lp) {
+void listpointer_close(ListPointer* lp) {
     free(lp->lastdocid);
     free(lp->blocksizes);
 
