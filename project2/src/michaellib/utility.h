@@ -8,4 +8,4 @@ int util_getDigitCount(size_t num);
 
 // Comparison functions
 
-int util_cmpHeapEntry(const void* a, const void* b);
+int util_gcmpHeapEntry(const void* a, const void* b);

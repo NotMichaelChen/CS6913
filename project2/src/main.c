@@ -144,7 +144,9 @@ int query(int argc, char* argv[]) {
             printf("(1) Conjunctive\n(2) Disjunctive\nEnter type of query: ");
 
             int res = 0;
-            scanf("%d", &res);
+            char* numinput = NULL;
+            getline(&numinput, &linelen, stdin);
+            res = strtol(numinput, NULL, 10);
 
             if(res == 1) {
                 MinHeap* res = DAAT(
@@ -157,7 +159,7 @@ int query(int argc, char* argv[]) {
 
                 //Sort minheap array
                 HeapEntry* resarr = minheap_getArr(res);
-                qsort(resarr, minheap_len(res), sizeof(HeapEntry), util_cmpHeapEntry);
+                qsort(resarr, minheap_len(res), sizeof(HeapEntry), util_gcmpHeapEntry);
 
                 //Print array
                 for(size_t i = 0; i < minheap_len(res); i++) {
@@ -175,7 +177,6 @@ int query(int argc, char* argv[]) {
             }
             else {
                 printf("Error: invalid query type\n");
-                continue;
             }
 
             stringvec_free(strvec);

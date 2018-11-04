@@ -8,8 +8,8 @@ inline int util_getDigitCount(size_t num) {
 
 // Comparison functions
 
-int util_cmpHeapEntry(const void* a, const void* b) {
-    const HeapEntry *c = a, *d = b;
+int util_gcmpHeapEntry(const void* a, const void* b) {
+    const HeapEntry *c = b, *d = a;
 
     return (c->score > d->score) - (c->score < d->score);
 }
