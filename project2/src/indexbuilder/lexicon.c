@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include "lexicon.h"
 
 #include "lib/uthash.h"
@@ -90,13 +91,13 @@ void lexicon_read(Lexicon* lex, FILE* fp) {
         //Now past the \0
         index++;
 
-        memcpy(&ent->pos, line[index], sizeof (ent->pos));
+        memcpy(&ent->pos, line + index, sizeof (ent->pos));
         index += sizeof (ent->pos);
 
-        memcpy(&ent->pos, line[index], sizeof (ent->metasize));
+        memcpy(&ent->pos, line + index, sizeof (ent->metasize));
         index += sizeof (ent->metasize);
 
-        memcpy(&ent->pos, line[index], sizeof (ent->listlen));
+        memcpy(&ent->pos, line + index, sizeof (ent->listlen));
         index += sizeof (ent->listlen);
 
         HASH_ADD_KEYPTR(hh, lex->dict, ent->key, termlen, ent);

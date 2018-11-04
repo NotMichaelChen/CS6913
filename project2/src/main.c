@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
@@ -5,13 +6,14 @@
 #include "reader/reader.h"
 #include "reader/dirreader.h"
 #include "michaellib/string.h"
+#include "michaellib/vector/stringvec.h"
 #include "intermfilegen/filegen.h"
 #include "mergesort/mergesort.h"
 #include "indexbuilder/indexer.h"
 #include "indexbuilder/pagetable.h"
+#include "query/DAAT.h"
 
-int main(int argc, char *argv[]) {
-
+int indexer(int argc, char* argv[]) {
     if(argc != 5) {
         printf("Usage: ./indexer [postingbuffersize] [mergebuffersize] [WETdir] [OutputDir]\n");
     }
@@ -66,15 +68,21 @@ int main(int argc, char *argv[]) {
         Lexicon* lex = block_buildIndex(output, "merged", "index");
         
         // Write out the lexicon and pagetable
-        FILE* lfp = fopen("output/lexicon", "wb");
+        String* lexpath = string_newstr(output);
+        string_appendString(lexpath, "/lexicon", 8);
+        FILE* lfp = fopen(string_getString(lexpath), "wb");
         lexicon_dump(lex, lfp);
         fclose(lfp);
         lexicon_free(lex);
+        string_free(lexpath);
 
-        FILE* tfp = fopen("output/pagetable", "wb");
+        String* tablepath = string_newstr(output);
+        string_appendString(tablepath, "/pagetable", 10);
+        FILE* tfp = fopen(string_getString(tablepath), "wb");
         pagetable_dump(table, tfp);
         fclose(tfp);
         pagetable_free(table);
+        string_free(tablepath);
 
         gettimeofday(&t2, NULL);
         elapsedtime = (t2.tv_sec - t1.tv_sec);
@@ -82,4 +90,92 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
+}
+
+int query(int argc, char* argv[]) {
+    if(argc != 3) {
+        printf("Usage: ./query [indexdir] [WETdir]\n");
+    }
+    else {
+        Lexicon* lex = lexicon_new();
+        PageTable* pagetable = pagetable_new();
+
+        String* lexpath = string_newstr(argv[1]);
+        string_appendString(lexpath, "/lexicon", 8);
+        FILE* lexfp = fopen(string_getString(lexpath), "rb");
+        string_free(lexpath);
+
+        String* tablepath = string_newstr(argv[1]);
+        string_appendString(tablepath, "/pagetable", 10);
+        FILE* tablefp = fopen(string_getString(tablepath), "rb");
+        string_free(tablepath);
+
+        printf("Loading lexicon...\n");
+        lexicon_read(lex, lexfp);
+        fclose(lexfp);
+
+        printf("Loading page table...\n");
+        pagetable_read(pagetable, tablefp);
+        fclose(tablefp);
+
+        String* indexpath = string_newstr(argv[1]);
+        string_appendString(indexpath, "/index", 6);
+        FILE* indexfp = fopen(string_getString(indexpath), "rb");
+
+        while(1) {
+            printf("Enter query terms: ");
+
+            //Get user input and tokenize it by whitespace
+            char* line = NULL;
+            size_t linelen = 0;
+
+            getline(&line, &linelen, stdin);
+
+            StringVec* strvec = stringvec_new();
+            char* linewalker = strtok(line, "\t\r\n ");
+            while(linewalker != NULL) {
+                
+                stringvec_append(strvec, linewalker);
+                linewalker = strtok(NULL, "\t\r\n ");
+            }
+
+            //Ask user to select type of query
+            printf("(1) Conjunctive\n(2) Disjunctive\nEnter type of query: ");
+
+            int res = 0;
+            scanf("%d", &res);
+
+            if(res == 1) {
+                MinHeap* res = DAAT(
+                    stringvec_getbuffer(strvec),
+                    stringvec_len(strvec),
+                    lex,
+                    pagetable,
+                    indexfp
+                );
+
+                //Sort minheap array
+
+                //Print array
+            }
+            else if(res == 2) {
+                printf("IMPLEMENT ME\n");
+            }
+            else {
+                printf("Error: invalid query type\n");
+                continue;
+            }
+
+            stringvec_free(strvec);
+            free(line);
+        }
+
+    }
+    
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    // return indexer(argc, argv);
+    return query(argc, argv);
 }

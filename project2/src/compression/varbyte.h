@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 #include "michaellib/string.h"
-#include "michaellib/bytevec.h"
-#include "michaellib/ulongvec.h"
+#include "michaellib/vector/bytevec.h"
+#include "michaellib/vector/ulongvec.h"
 
 //Use String to encode byte arrays for convenience (we get length and free func)
 String* varbyte_encode(uint64_t num);

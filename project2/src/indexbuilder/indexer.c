@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include "indexbuilder/indexer.h"
 
 #include <string.h>
@@ -5,8 +6,8 @@
 
 #include "global.h"
 #include "michaellib/string.h"
-#include "michaellib/ulongvec.h"
-#include "michaellib/bytevec.h"
+#include "michaellib/vector/ulongvec.h"
+#include "michaellib/vector/bytevec.h"
 #include "compression/varbyte.h"
 
 // Write a vector of numbers to a file as a block-based posting list
