@@ -12,6 +12,7 @@
 #include "indexbuilder/indexer.h"
 #include "indexbuilder/pagetable.h"
 #include "query/DAAT.h"
+#include "michaellib/utility.h"
 
 int indexer(int argc, char* argv[]) {
     if(argc != 5) {
@@ -155,8 +156,19 @@ int query(int argc, char* argv[]) {
                 );
 
                 //Sort minheap array
+                HeapEntry* resarr = minheap_getArr(res);
+                qsort(resarr, minheap_len(res), sizeof(HeapEntry), util_cmpHeapEntry);
 
                 //Print array
+                for(size_t i = 0; i < minheap_len(res); i++) {
+                    printf("(%zu) %s\n\tscore: %lf",
+                        i,
+                        string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
+                        resarr[i].score
+                    );
+                }
+
+                minheap_free(res);
             }
             else if(res == 2) {
                 printf("IMPLEMENT ME\n");

@@ -16,7 +16,7 @@ StringVec* stringvec_new() {
     return stringvec;
 }
 
-StringVec* stringvec_append(StringVec* stringvec, char* str) {
+void stringvec_append(StringVec* stringvec, char* str) {
     if (stringvec->capacity == 0) {
         stringvec->capacity = 1;
         stringvec->buf = malloc(sizeof(char*) * stringvec->capacity);

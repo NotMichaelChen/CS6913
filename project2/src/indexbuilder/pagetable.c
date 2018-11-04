@@ -1,8 +1,7 @@
+#define _XOPEN_SOURCE 700
 #include "pagetable.h"
 
 #include <string.h>
-
-#include "michaellib/string.h"
 
 typedef struct TableEntry {
     String* url;
@@ -39,6 +38,10 @@ void pagetable_add(PageTable* table, char* url, size_t pagelength) {
     table->avgpagelength += (pagelength - table->avgpagelength) / (table->size+1);
 
     table->size++;
+}
+
+String* pagetable_geturl(PageTable* table, docID_t docID) {
+    return table->list[docID].url;
 }
 
 uint32_t pagetable_getPageLength(PageTable* table, size_t docID) {

@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "michaellib/string.h"
+#include "global.h"
+
 // Represents the page table structure
 
 typedef struct PageTable PageTable;
@@ -13,6 +16,7 @@ PageTable* pagetable_new();
 // Assumes pages are inserted in increasing doc order
 void pagetable_add(PageTable* table, char* url, size_t pagesize);
 
+String* pagetable_geturl(PageTable* table, docID_t docID);
 uint32_t pagetable_getPageLength(PageTable* table, size_t docID);
 double pagetable_getAvgPageLength(PageTable* table);
 size_t pagetable_len(PageTable* table);
