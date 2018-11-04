@@ -74,36 +74,27 @@ size_t lexicon_getlistlen(Lexicon* lex, char* term) {
 }
 
 void lexicon_read(Lexicon* lex, FILE* fp) {
-    char* line = NULL;
-    size_t linelen = 0;
+    char* term = NULL;
+    size_t termlen = 0;
     int read = 0;
 
-    while ((read = getline(&line, &linelen, fp)) != -1) {
+    //We have more entries to read if we can successfully read a term string
+    while ((read = getdelim(&term, &termlen, '\n', fp)) != -1) {
         LexiconEntry* ent = malloc(sizeof(LexiconEntry));
 
-        size_t index = 0;
-        while(line[index] != 0) index++;
-        size_t termlen = index;
-        
-        ent->key = malloc(index + 1);
-        strcpy(ent->key, line);
+        //Don't add 1 since read includes the null terminator we put in
+        ent->key = malloc(read);
+        memcpy(ent->key, term, read);
+        ent->key[read-1] = 0;
 
-        //Now past the \0
-        index++;
+        fread(&ent->pos, sizeof (ent->pos), 1, fp);
+        fread(&ent->metasize, sizeof (ent->metasize), 1, fp);
+        fread(&ent->listlen, sizeof (ent->listlen), 1, fp);
 
-        memcpy(&ent->pos, line + index, sizeof (ent->pos));
-        index += sizeof (ent->pos);
-
-        memcpy(&ent->pos, line + index, sizeof (ent->metasize));
-        index += sizeof (ent->metasize);
-
-        memcpy(&ent->pos, line + index, sizeof (ent->listlen));
-        index += sizeof (ent->listlen);
-
-        HASH_ADD_KEYPTR(hh, lex->dict, ent->key, termlen, ent);
+        HASH_ADD_KEYPTR(hh, lex->dict, ent->key, read-1, ent);
     }
 
-    free(line);
+    free(term);
 }
 
 void lexicon_dump(Lexicon* lex, FILE* fp) {
@@ -113,7 +104,8 @@ void lexicon_dump(Lexicon* lex, FILE* fp) {
 
     HASH_ITER(hh, lex->dict, iter, tmp) {
         fputs(iter->key, fp);
-        fputc(0, fp);
+        //Since whitespace is disallowed in terms, this is a legal terminator
+        fputc('\n', fp);
         //TODO: compress?
         fwrite(&iter->pos, sizeof(iter->pos), 1, fp);
         fwrite(&iter->metasize, sizeof(iter->metasize), 1, fp);

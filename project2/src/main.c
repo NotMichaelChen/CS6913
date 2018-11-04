@@ -38,7 +38,7 @@ int indexer(int argc, char* argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        for(int i = 0; i < 200; i++) {
+        for(int i = 0; i < 10000; i++) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -161,7 +161,7 @@ int query(int argc, char* argv[]) {
 
                 //Print array
                 for(size_t i = 0; i < minheap_len(res); i++) {
-                    printf("(%zu) %s\n\tscore: %lf",
+                    printf("(%zu) %s\n\tscore: %lf\n",
                         i,
                         string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
                         resarr[i].score
@@ -188,6 +188,15 @@ int query(int argc, char* argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    // return indexer(argc, argv);
-    return query(argc, argv);
+    if(argc == 5)
+        return indexer(argc, argv);
+    else if(argc == 3)
+        return query(argc, argv);
+    else {
+        printf("Error, argument count doesn't match index or query\n");
+        printf("Indexer Usage: ./index [postingbuffersize] [mergebuffersize] [WETdir] [OutputDir]\n");
+        printf("Query Usage: ./index [indexdir] [WETdir]\n");
+    }
+    
+    return 0;
 }

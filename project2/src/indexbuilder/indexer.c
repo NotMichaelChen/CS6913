@@ -39,14 +39,15 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
             ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
             size_t sizebefore, sizeafter;
-            String* compressednum;
+            uint8_t* comprnum;
+            size_t comprlen = 0;
 
             //Compress docIDs
             sizebefore = bytevec_len(postingdata);
             for(size_t j = 0; j < blockindex; j++) {
-                compressednum = varbyte_encode(docIDblock[j]);
-                bytevec_appendstr(postingdata, compressednum);
-                string_free(compressednum);
+                comprnum = varbyte_encode(docIDblock[j], &comprlen);
+                bytevec_appendRange(postingdata, comprnum, comprlen);
+                free(comprnum);
             }
             sizeafter = bytevec_len(postingdata);
             ulongvector_append(blocksizes, sizeafter - sizebefore);
@@ -54,9 +55,9 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
             //Compress freqs
             sizebefore = bytevec_len(postingdata);
             for(size_t j = 0; j < blockindex; j++) {
-                compressednum = varbyte_encode(freqblock[j]);
-                bytevec_appendstr(postingdata, compressednum);
-                string_free(compressednum);
+                comprnum = varbyte_encode(freqblock[j], &comprlen);
+                bytevec_appendRange(postingdata, comprnum, comprlen);
+                free(comprnum);
             }
             sizeafter = bytevec_len(postingdata);
             ulongvector_append(blocksizes, sizeafter - sizebefore);
@@ -71,14 +72,15 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
         ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
         size_t sizebefore, sizeafter;
-        String* compressednum;
+        uint8_t* comprnum;
+        size_t comprlen;
 
         //Compress docIDs
         sizebefore = bytevec_len(postingdata);
         for(size_t j = 0; j < blockindex; j++) {
-            compressednum = varbyte_encode(docIDblock[j]);
-            bytevec_appendstr(postingdata, compressednum);
-            string_free(compressednum);
+            comprnum = varbyte_encode(docIDblock[j], &comprlen);
+            bytevec_appendRange(postingdata, comprnum, comprlen);
+            free(comprnum);
         }
         sizeafter = bytevec_len(postingdata);
         ulongvector_append(blocksizes, sizeafter - sizebefore);
@@ -86,9 +88,9 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
         //Compress freqs
         sizebefore = bytevec_len(postingdata);
         for(size_t j = 0; j < blockindex; j++) {
-            compressednum = varbyte_encode(freqblock[j]);
-            bytevec_appendstr(postingdata, compressednum);
-            string_free(compressednum);
+            comprnum = varbyte_encode(freqblock[j], &comprlen);
+            bytevec_appendRange(postingdata, comprnum, comprlen);
+            free(comprnum);
         }
         sizeafter = bytevec_len(postingdata);
         ulongvector_append(blocksizes, sizeafter - sizebefore);
@@ -98,19 +100,24 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
     ByteVec* compressedblocksizes = varbyte_encodeblock(ulongvector_getBuffer(blocksizes), ulongvector_size(blocksizes));
     ByteVec* compressedlastdocid = varbyte_encodeblock(ulongvector_getBuffer(lastdocid), ulongvector_size(lastdocid));
 
-    String* blocksizeslen = varbyte_encode(bytevec_len(compressedblocksizes));
-    String* lastdocidlen = varbyte_encode(bytevec_len(compressedlastdocid));
+    uint8_t* blocksizeslen;
+    size_t blocksizeslenlen = 0;
+    uint8_t* lastdocidlen;
+    size_t lastdocidlenlen = 0;
 
-    size_t metasize = string_getLen(blocksizeslen) + string_getLen(lastdocidlen) +
+    blocksizeslen = varbyte_encode(ulongvector_size(blocksizes), &blocksizeslenlen);
+    lastdocidlen = varbyte_encode(ulongvector_size(lastdocid), &lastdocidlenlen);
+
+    size_t metasize = blocksizeslenlen + lastdocidlenlen +
                         bytevec_len(compressedblocksizes) + bytevec_len(compressedlastdocid);
     
     //Add lexicon entry
     lexicon_insert(lex, string_getString(term), string_getLen(term), ftell(fp), metasize, ulongvector_size(vec) / 2);
 
     //Write everything out
-    fwrite(string_getString(blocksizeslen), 1, string_getLen(blocksizeslen), fp);
+    fwrite(blocksizeslen, 1, blocksizeslenlen, fp);
     bytevec_dump(compressedblocksizes, fp);
-    fwrite(string_getString(lastdocidlen), 1, string_getLen(lastdocidlen), fp);
+    fwrite(lastdocidlen, 1, lastdocidlenlen, fp);
     bytevec_dump(compressedlastdocid, fp);
     bytevec_dump(postingdata, fp);
 
@@ -121,8 +128,8 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
     bytevec_free(postingdata);
     bytevec_free(compressedblocksizes);
     bytevec_free(compressedlastdocid);
-    string_free(blocksizeslen);
-    string_free(lastdocidlen);
+    free(blocksizeslen);
+    free(lastdocidlen);
 }
 
 Lexicon* block_generateIndex(FILE* ifp, FILE* ofp) {

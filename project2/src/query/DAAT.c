@@ -17,13 +17,13 @@ MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable
         docscontaining[i] = lexicon_getlistlen(lex, terms[i]);
     }
 
-    docID_t docID;
+    docID_t docID = 0;
     bool success = true;
     while(1) {
         docID = listpointer_nextGEQ(lps[0], docID, &success);
         if(!success) break;
 
-        docID_t otherdocID;
+        docID_t otherdocID = docID;
         for(size_t i = 1; i < termcount; i++) {
             otherdocID = listpointer_nextGEQ(lps[i], docID, &success);
             if(otherdocID != docID) {

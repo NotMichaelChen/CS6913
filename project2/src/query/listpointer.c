@@ -43,7 +43,7 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
     size_t metaread = fread(metacompr, 1, metalen, fp);
     if(metaread != metalen) {
         fprintf(stderr,
-            "Error: metadata read for term %s does not match stored metadata. %lu read vs %lu expected.",
+            "Error: metadata read for term %s does not match stored metadata. %lu read vs %lu expected.\n",
             term,
             metaread,
             metalen
@@ -53,17 +53,17 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
 
     // Decompress metadata
     ULongVector* metadatavec = varbyte_decodeStream(metacompr, metalen);
-    lp->lastdocidlen = ulongvector_get(metadatavec, 0);
-    //skip lastdocidlen numbers and account for original len
-    lp->blocksizeslen = ulongvector_get(metadatavec, lp->lastdocidlen + 1);
+    lp->blocksizeslen = ulongvector_get(metadatavec, 0);
+    //skip blocksizeslen numbers and account for original len
+    lp->lastdocidlen = ulongvector_get(metadatavec, lp->blocksizeslen + 1);
 
-    lp->lastdocid = malloc(sizeof (uint64_t) * lp->lastdocidlen);
     lp->blocksizes = malloc(sizeof (uint64_t) * lp->blocksizeslen);
+    lp->lastdocid = malloc(sizeof (uint64_t) * lp->lastdocidlen);
 
     uint64_t* rawmetadata = ulongvector_getBuffer(metadatavec);
     // Constants 1 and 2 are for accounting for the actual len entries
-    memcpy(lp->lastdocid, rawmetadata + 1, lp->lastdocidlen);
-    memcpy(lp->blocksizes, rawmetadata + lp->lastdocidlen + 2, lp->blocksizeslen);
+    memcpy(lp->blocksizes, rawmetadata + 1, lp->blocksizeslen * sizeof (*rawmetadata));
+    memcpy(lp->lastdocid, rawmetadata + lp->blocksizeslen + 2, lp->lastdocidlen * sizeof (*rawmetadata));
 
     // Decompress and store first docID
     lp->blockposition = ftell(fp);
@@ -86,6 +86,7 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
 
     lp->docIDindex = 0;
     lp->blockindex = 0;
+    lp->freqavailable = false;
 
     // Free stuff
     ulongvector_free(metadatavec);
@@ -102,7 +103,7 @@ docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
     //Find the correct block to look at
     while(lp->blockindex < lp->lastdocidlen && lp->lastdocid[lp->blockindex] < docID) {
         //Move the docID block pointer
-        lp->blockposition += lp->blocksizes[(lp->blockindex*2)-1] + lp->blocksizes[(lp->blockindex*2)];
+        lp->blockposition += lp->blocksizes[(lp->blockindex*2)] + lp->blocksizes[(lp->blockindex*2)+1];
 
         ++lp->blockindex;
     }
@@ -154,19 +155,21 @@ freq_t listpointer_getFreq(ListPointer* lp) {
         if(lp->freqblock != NULL)
             ulongvector_free(lp->freqblock);
 
-        uint8_t* blockcompr = malloc(lp->blocksizes[lp->blockindex+1]);
-        size_t blockread = fread(blockcompr, 1, lp->blocksizes[lp->blockindex+1], lp->fp);
-        if(blockread != lp->blocksizes[lp->blockindex+1]) {
+        uint8_t* blockcompr = malloc(lp->blocksizes[(lp->blockindex*2)+1]);
+        size_t blockread = fread(blockcompr, 1, lp->blocksizes[(lp->blockindex*2)+1], lp->fp);
+        if(blockread != lp->blocksizes[(lp->blockindex*2)+1]) {
             fprintf(stderr,
                 "Error: frequency block %lu does not match expected size. %lu read vs %lu expected.",
                 lp->blockindex+1,
                 blockread,
-                lp->blocksizes[lp->blockindex+1]
+                lp->blocksizes[(lp->blockindex*2)+1]
             );
             exit(1);
         }
 
-        lp->freqblock = varbyte_decodeStream(blockcompr, lp->blocksizes[lp->blockindex+1]);
+        lp->freqblock = varbyte_decodeStream(blockcompr, lp->blocksizes[(lp->blockindex*2)+1]);
+        free(blockcompr);
+        lp->freqavailable = true;
     }
 
     return ulongvector_get(lp->freqblock, lp->docIDindex);

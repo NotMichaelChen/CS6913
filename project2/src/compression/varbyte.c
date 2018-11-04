@@ -1,7 +1,9 @@
 #include "varbyte.h"
 
+#include <string.h>
+
 //Little endian encoding
-inline String* varbyte_encode(uint64_t num) {
+inline uint8_t* varbyte_encode(uint64_t num, size_t* len) {
     //Need at most 10 7-bit bytes to represent a 64-bit number
     //Initialize to zero to make converting to string easier
     uint8_t bytestream[10] = {0};
@@ -16,18 +18,22 @@ inline String* varbyte_encode(uint64_t num) {
     }
 
     bytestream[index] += 128;
-    return string_newstr((char *) bytestream);
+    *len = index+1;
+    uint8_t* res = malloc(*len);
+    memcpy(res, bytestream, *len);
+    return res;
 }
 
 inline ByteVec* varbyte_encodeblock(uint64_t* nums, size_t count) {
     ByteVec* vec = bytevec_new();
 
-    String* compressednum;
+    uint8_t* compressednum;
+    size_t comprlen = 0;
 
     for(size_t i = 0; i < count; i++) {
-        compressednum = varbyte_encode(nums[i]);
-        bytevec_appendstr(vec, compressednum);
-        string_free(compressednum);
+        compressednum = varbyte_encode(nums[i], &comprlen);
+        bytevec_appendRange(vec, compressednum, comprlen);
+        free(compressednum);
     }
 
     return vec;
