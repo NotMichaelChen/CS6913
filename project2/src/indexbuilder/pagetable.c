@@ -1,5 +1,7 @@
 #include "pagetable.h"
 
+#include <string.h>
+
 #include "michaellib/string.h"
 
 typedef struct TableEntry {
@@ -51,10 +53,30 @@ size_t pagetable_len(PageTable* table) {
     return table->size;
 }
 
+void pagetable_read(PageTable* table, FILE* fp) {
+    char* line = NULL;
+    size_t linelen = 0;
+    int read = 0;
+
+    while ((read = getline(&line, &linelen, fp)) != -1) {
+        char* linewalker = strtok(line, "\t\r\n ");
+        if(linewalker == NULL)
+            return;
+        
+        char* url = linewalker;
+
+        linewalker = strtok(NULL, "\t\r\n ");
+        uint32_t pagelen = strtoul(linewalker, NULL, 10);
+
+        pagetable_add(table, url, pagelen);
+    }
+
+    free(line);
+}
+
 void pagetable_dump(PageTable* table, FILE* fp) {
-    fprintf(fp, "%lf\n", table->avgpagelength);
     for(size_t i = 0; i < table->size; i++) {
-        fprintf(fp, "%zu %s %zu\n", i, string_getString(table->list[i].url), table->list[i].pagelength);
+        fprintf(fp, "%s %u\n", string_getString(table->list[i].url), table->list[i].pagelength);
     }
 }
 

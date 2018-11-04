@@ -72,6 +72,39 @@ size_t lexicon_getlistlen(Lexicon* lex, char* term) {
     return ent->listlen;
 }
 
+void lexicon_read(Lexicon* lex, FILE* fp) {
+    char* line = NULL;
+    size_t linelen = 0;
+    int read = 0;
+
+    while ((read = getline(&line, &linelen, fp)) != -1) {
+        LexiconEntry* ent = malloc(sizeof(LexiconEntry));
+
+        size_t index = 0;
+        while(line[index] != 0) index++;
+        size_t termlen = index;
+        
+        ent->key = malloc(index + 1);
+        strcpy(ent->key, line);
+
+        //Now past the \0
+        index++;
+
+        memcpy(&ent->pos, line[index], sizeof (ent->pos));
+        index += sizeof (ent->pos);
+
+        memcpy(&ent->pos, line[index], sizeof (ent->metasize));
+        index += sizeof (ent->metasize);
+
+        memcpy(&ent->pos, line[index], sizeof (ent->listlen));
+        index += sizeof (ent->listlen);
+
+        HASH_ADD_KEYPTR(hh, lex->dict, ent->key, termlen, ent);
+    }
+
+    free(line);
+}
+
 void lexicon_dump(Lexicon* lex, FILE* fp) {
 
     LexiconEntry* iter = NULL;

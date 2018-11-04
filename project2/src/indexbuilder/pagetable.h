@@ -17,6 +17,7 @@ uint32_t pagetable_getPageLength(PageTable* table, size_t docID);
 double pagetable_getAvgPageLength(PageTable* table);
 size_t pagetable_len(PageTable* table);
 
+void pagetable_read(PageTable* table, FILE* fp);
 void pagetable_dump(PageTable* table, FILE* fp);
 
 void pagetable_free(PageTable* table);
