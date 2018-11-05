@@ -44,7 +44,7 @@ int indexer(int argc, char* argv[]) {
                 break;
             
             size_t termcount = postinggen_addDoc(postinggen, doc);
-            pagetable_add(table, doc.url, termcount);
+            pagetable_add(table, doc.url, termcount, doc.wetpath, doc.docsize, doc.offset);
             
             reader_freedoc(&doc);
         }
@@ -141,7 +141,7 @@ int query(int argc, char* argv[]) {
             }
 
             //Ask user to select type of query
-            printf("(1) Conjunctive\n(2) Disjunctive\nEnter type of query: ");
+            printf("(1) Conjunctive\n(2) Disjunctive\n(3) Exit\nEnter type of query: ");
 
             int res = 0;
             char* numinput = NULL;
@@ -173,7 +173,11 @@ int query(int argc, char* argv[]) {
                 minheap_free(res);
             }
             else if(res == 2) {
+
                 printf("IMPLEMENT ME\n");
+            }
+            else if(res == 3) {
+                break;
             }
             else {
                 printf("Error: invalid query type\n");
@@ -181,6 +185,7 @@ int query(int argc, char* argv[]) {
 
             stringvec_free(strvec);
             free(line);
+            free(numinput);
         }
 
     }

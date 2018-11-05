@@ -17,6 +17,8 @@ struct DirReader {
     int status;
     // Represents the directory name to read from
     char* directory;
+    // Represents the current path that fp is pointing to
+    String* wetpath;
 };
 
 DirReader* dirreader_new(char* directory) {
@@ -42,13 +44,11 @@ DirReader* dirreader_new(char* directory) {
     } while(!strcmp(reader->ent->d_name,".") || !strcmp(reader->ent->d_name,".."));
 
     // Construct the path string used to open the file
-    String* str = string_newstr(directory);
-    string_appendString(str, "/", 1);
-    string_appendString(str, reader->ent->d_name, strlen(reader->ent->d_name));
+    reader->wetpath = string_newstr(directory);
+    string_appendString(reader->wetpath, "/", 1);
+    string_appendString(reader->wetpath, reader->ent->d_name, strlen(reader->ent->d_name));
 
-    reader->fp = fopen(string_getString(str), "r");
-
-    string_free(str);
+    reader->fp = fopen(string_getString(reader->wetpath), "r");
 
     // If the file pointer failed in opening the file, set error
     if(!reader->fp) {
@@ -96,14 +96,12 @@ Document dirreader_getDocument(DirReader* reader) {
             fclose(reader->fp);
 
             // Construct the filepath for the next file to read
-            String* str = string_newstr(reader->directory);
-            string_appendString(str, "/", 1);
-            string_appendString(str, reader->ent->d_name, strlen(reader->ent->d_name));
+            string_free(reader->wetpath);
+            reader->wetpath = string_newstr(reader->directory);
+            string_appendString(reader->wetpath, "/", 1);
+            string_appendString(reader->wetpath, reader->ent->d_name, strlen(reader->ent->d_name));
 
-            // Open the filepath
-            reader->fp = fopen(string_getString(str), "r");
-
-            string_free(str);
+            reader->fp = fopen(string_getString(reader->wetpath), "r");
 
             // Set error if unable to open filepath
             if(!reader->fp) {
@@ -120,6 +118,8 @@ Document dirreader_getDocument(DirReader* reader) {
         }
     } while(err);
 
+    doc.wetpath = malloc(string_getLen(reader->wetpath) + 1);
+    strcpy(doc.wetpath, string_getString(reader->wetpath));
     return doc;
 }
 
@@ -131,6 +131,7 @@ void dirreader_free(DirReader* reader) {
     closedir(reader->dir);
     fclose(reader->fp);
     reader_free(reader->docreader);
+    string_free(reader->wetpath);
 
     free(reader);
 }

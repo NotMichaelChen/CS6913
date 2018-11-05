@@ -45,8 +45,8 @@ MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable
 
             // Compute BM25
             double score = BM25(frequencies, termcount, docscontaining, termcount,
-                pagetable_getPageLength(pagetable, docID),
-                pagetable_getAvgPageLength(pagetable),
+                pagetable_getTermCount(pagetable, docID),
+                pagetable_getAvgTermCount(pagetable),
                 pagetable_len(pagetable)
             );
 

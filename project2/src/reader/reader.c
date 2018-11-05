@@ -42,15 +42,22 @@ Reader* reader_new(FILE* fp) {
 Document reader_getDocument(Reader* reader) {
     // If the reader is invalid, don't attempt to read anything
     if(reader->status != 0)
-        return (Document) {NULL, NULL, -1};
+        return (Document) {NULL, NULL, -1, NULL, 0};
 
     // If metadata read failed, set error
     ReaderMetadata metadata;
     int err = reader_readMetadata(&metadata, reader->fp);
     if(err) {
         reader->status = 5;
-        return (Document) {NULL, NULL, -1};
+        return (Document) {NULL, NULL, -1, NULL, 0};
     }
+
+    Document doc;
+    //Store the initial position of the document in the wet file first
+    doc.offset = ftell(reader->fp);
+    //Note that we can't fill in the "wetpath" field yet since we don't know the
+    //actual path in this function
+    doc.wetpath = NULL;
 
     // Read document size from the metadata Content_Length field
     int docsize = strtol(metadata.Content_Length, NULL, 10);
@@ -59,8 +66,6 @@ Document reader_getDocument(Reader* reader) {
     fread(doctext, 1, docsize, reader->fp);
     doctext[docsize] = '\0';
 
-    //Construct document struct
-    Document doc;
     doc.doc = doctext;
 
     // Set the url by copying it from the metadata struct
@@ -97,4 +102,5 @@ void reader_free(Reader* reader) {
 void reader_freedoc(Document* doc) {
     free(doc->doc);
     free(doc->url);
+    free(doc->wetpath);
 }

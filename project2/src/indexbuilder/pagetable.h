@@ -14,11 +14,12 @@ typedef struct PageTable PageTable;
 PageTable* pagetable_new();
 
 // Assumes pages are inserted in increasing doc order
-void pagetable_add(PageTable* table, char* url, size_t pagesize);
+void pagetable_add(PageTable* table, char* url, size_t termcount, char* wetpath, size_t doclen, size_t offset);
 
 String* pagetable_geturl(PageTable* table, docID_t docID);
-uint32_t pagetable_getPageLength(PageTable* table, size_t docID);
-double pagetable_getAvgPageLength(PageTable* table);
+uint32_t pagetable_getTermCount(PageTable* table, size_t docID);
+double pagetable_getAvgTermCount(PageTable* table);
+char* pagetable_getDocument(PageTable* table, size_t docID);
 size_t pagetable_len(PageTable* table);
 
 void pagetable_read(PageTable* table, FILE* fp);

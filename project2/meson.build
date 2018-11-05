@@ -23,6 +23,7 @@ src = [
 	'src/michaellib/string.c',
 	'src/mergesort/mergesort.c',
 	'src/query/listpointer.c',
+	'src/query/disjunctive.c',
 	'src/query/DAAT.c',
 	'src/query/BM25.c',
 	'src/intermfilegen/filegen.c',
@@ -30,4 +31,8 @@ src = [
 	'src/posting.c',
 ]
 
-executable('out', src, dependencies: m_dep)
+dep = [
+	m_dep,
+]
+
+executable('out', src, dependencies: dep)

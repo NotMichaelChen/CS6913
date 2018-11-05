@@ -12,13 +12,19 @@ typedef struct Document {
     char* url;
     char* doc;
     int docsize;
+
+    //Info about the doc in the wet file
+    char* wetpath;
+    size_t offset;
 } Document;
 
 typedef struct Reader Reader;
 
 Reader* reader_new(FILE* fp);
 
-// Gets the next document in the file
+// Gets the next document in the file.
+// Note that the "wetpath" field is not filled in since this reader object has
+// no info about the path of its file pointer
 Document reader_getDocument(Reader* reader);
 // Returns the status of the reader
 int reader_getStatus(Reader* reader);
