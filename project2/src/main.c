@@ -163,11 +163,17 @@ int query(int argc, char* argv[]) {
 
                 //Print array
                 for(size_t i = 0; i < minheap_len(res); i++) {
-                    printf("(%zu) %s\n\tscore: %lf\n",
+                    printf("(%zu) %s\n\tscore: %lf\n\n",
                         i,
                         string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
                         resarr[i].score
                     );
+
+                    // Get document and print it out
+                    // TODO: get relevant snippet
+                    char* document = pagetable_getDocument(pagetable, resarr[i].docID);
+                    util_printSnippet(document, stringvec_getstr(strvec, 0));
+                    free(document);
                 }
 
                 minheap_free(res);

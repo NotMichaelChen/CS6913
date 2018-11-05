@@ -19,6 +19,7 @@ void pagetable_add(PageTable* table, char* url, size_t termcount, char* wetpath,
 String* pagetable_geturl(PageTable* table, docID_t docID);
 uint32_t pagetable_getTermCount(PageTable* table, size_t docID);
 double pagetable_getAvgTermCount(PageTable* table);
+// WARNING - returns allocated memory
 char* pagetable_getDocument(PageTable* table, size_t docID);
 size_t pagetable_len(PageTable* table);
 
