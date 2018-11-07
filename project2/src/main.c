@@ -13,6 +13,7 @@
 #include "indexbuilder/pagetable.h"
 #include "query/DAAT.h"
 #include "michaellib/utility.h"
+#include "query/disjunctive.h"
 
 int indexer(int argc, char* argv[]) {
     if(argc != 5) {
@@ -38,7 +39,7 @@ int indexer(int argc, char* argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        for(int i = 0; i < 10000; i++) {
+        for(int i = 0; i < 100000; i++) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -148,46 +149,53 @@ int query(int argc, char* argv[]) {
             getline(&numinput, &linelen, stdin);
             res = strtol(numinput, NULL, 10);
 
+            MinHeap* queryheap = NULL;
+
             if(res == 1) {
-                MinHeap* res = DAAT(
+                queryheap = DAAT(
                     stringvec_getbuffer(strvec),
                     stringvec_len(strvec),
                     lex,
                     pagetable,
                     indexfp
                 );
-
-                //Sort minheap array
-                HeapEntry* resarr = minheap_getArr(res);
-                qsort(resarr, minheap_len(res), sizeof(HeapEntry), util_gcmpHeapEntry);
-
-                //Print array
-                for(size_t i = 0; i < minheap_len(res); i++) {
-                    printf("(%zu) %s\n\tscore: %lf\n\n",
-                        i,
-                        string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
-                        resarr[i].score
-                    );
-
-                    // Get document and print it out
-                    // TODO: get relevant snippet
-                    char* document = pagetable_getDocument(pagetable, resarr[i].docID);
-                    util_printSnippet(document, stringvec_getstr(strvec, 0));
-                    free(document);
-                }
-
-                minheap_free(res);
             }
             else if(res == 2) {
-
-                printf("IMPLEMENT ME\n");
+                queryheap = disjunctive_query(
+                    stringvec_getbuffer(strvec),
+                    stringvec_len(strvec),
+                    lex,
+                    pagetable,
+                    indexfp
+                );
             }
             else if(res == 3) {
                 break;
             }
             else {
                 printf("Error: invalid query type\n");
+                continue;
             }
+
+            //Sort minheap array
+            HeapEntry* resarr = minheap_getArr(queryheap);
+            qsort(resarr, minheap_len(queryheap), sizeof(HeapEntry), util_gcmpHeapEntry);
+
+            //Print array
+            for(size_t i = 0; i < minheap_len(queryheap); i++) {
+                printf("(%zu) %s\n\tscore: %lf\n\n",
+                    i,
+                    string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
+                    resarr[i].score
+                );
+
+                // Get document and print it out
+                char* document = pagetable_getDocument(pagetable, resarr[i].docID);
+                //util_printSnippet(document, stringvec_getstr(strvec, 0));
+                free(document);
+            }
+
+            minheap_free(queryheap);
 
             stringvec_free(strvec);
             free(line);

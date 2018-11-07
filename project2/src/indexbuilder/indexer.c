@@ -38,29 +38,17 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
             //Add to lastdocid
             ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
-            size_t sizebefore, sizeafter;
-            uint8_t* comprnum;
-            size_t comprlen = 0;
-
             //Compress docIDs
-            sizebefore = bytevec_len(postingdata);
-            for(size_t j = 0; j < blockindex; j++) {
-                comprnum = varbyte_encode(docIDblock[j], &comprlen);
-                bytevec_appendRange(postingdata, comprnum, comprlen);
-                free(comprnum);
-            }
-            sizeafter = bytevec_len(postingdata);
-            ulongvector_append(blocksizes, sizeafter - sizebefore);
+            ByteVec* comprblock = varbyte_encodeblock(docIDblock, 128);
+            bytevec_concat(postingdata, comprblock);
+            ulongvector_append(blocksizes, bytevec_len(comprblock));
+            bytevec_free(comprblock);
 
             //Compress freqs
-            sizebefore = bytevec_len(postingdata);
-            for(size_t j = 0; j < blockindex; j++) {
-                comprnum = varbyte_encode(freqblock[j], &comprlen);
-                bytevec_appendRange(postingdata, comprnum, comprlen);
-                free(comprnum);
-            }
-            sizeafter = bytevec_len(postingdata);
-            ulongvector_append(blocksizes, sizeafter - sizebefore);
+            comprblock = varbyte_encodeblock(freqblock, 128);
+            bytevec_concat(postingdata, comprblock);
+            ulongvector_append(blocksizes, bytevec_len(comprblock));
+            bytevec_free(comprblock);
 
             blockindex = 0;
         }
@@ -71,29 +59,17 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
         //Add to lastdocid
         ulongvector_append(lastdocid, docIDblock[blockindex-1]);
 
-        size_t sizebefore, sizeafter;
-        uint8_t* comprnum;
-        size_t comprlen;
-
         //Compress docIDs
-        sizebefore = bytevec_len(postingdata);
-        for(size_t j = 0; j < blockindex; j++) {
-            comprnum = varbyte_encode(docIDblock[j], &comprlen);
-            bytevec_appendRange(postingdata, comprnum, comprlen);
-            free(comprnum);
-        }
-        sizeafter = bytevec_len(postingdata);
-        ulongvector_append(blocksizes, sizeafter - sizebefore);
+        ByteVec* comprblock = varbyte_encodeblock(docIDblock, blockindex);
+        bytevec_concat(postingdata, comprblock);
+        ulongvector_append(blocksizes, bytevec_len(comprblock));
+        bytevec_free(comprblock);
 
         //Compress freqs
-        sizebefore = bytevec_len(postingdata);
-        for(size_t j = 0; j < blockindex; j++) {
-            comprnum = varbyte_encode(freqblock[j], &comprlen);
-            bytevec_appendRange(postingdata, comprnum, comprlen);
-            free(comprnum);
-        }
-        sizeafter = bytevec_len(postingdata);
-        ulongvector_append(blocksizes, sizeafter - sizebefore);
+        comprblock = varbyte_encodeblock(freqblock, blockindex);
+        bytevec_concat(postingdata, comprblock);
+        ulongvector_append(blocksizes, bytevec_len(comprblock));
+        bytevec_free(comprblock);
     }
 
     //Compute metadata

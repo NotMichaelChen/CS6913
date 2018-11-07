@@ -4,6 +4,10 @@
 #include "listpointer.h"
 
 MinHeap* disjunctive_query(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FILE* fp) {
+    if(termcount == 0) {
+        return minheap_new(10);
+    }
+
     //Construct list that determines how many docs contain each term
     uint32_t* docscontaining = malloc(sizeof (uint32_t) * termcount);
     //Construct list pointers
@@ -19,18 +23,32 @@ MinHeap* disjunctive_query(char** terms, size_t termcount, Lexicon* lex, PageTab
 
     docID_t docID = 0;
     bool success = true;
+    docID_t* lpdocID = malloc(sizeof (docID_t) * termcount);
     while(1) {
-        docID_t* lpdocID = malloc(sizeof (docID_t) * termcount);
 
-        for(size_t i = 0; i < termcount; i++) {
+        //Call nextGEQ for each list pointer - keep track of the minimum docID
+        docID_t mindocID = listpointer_nextGEQ(lps[0], docID, &success);
+        if(!success) break;
+        lpdocID[0] = mindocID;
+
+        for(size_t i = 1; i < termcount; i++) {
             lpdocID[i] = listpointer_nextGEQ(lps[i], docID, &success);
             if(!success) break;
+            if(lpdocID[i] < mindocID)
+                mindocID = lpdocID[i];
         }
         if(!success) break;
 
+        docID = mindocID;
+
+        //Only get the frequencies of listpointers of the minimum docID
+        //otherwise set the freq to zero
         freq_t* frequencies = malloc(sizeof (freq_t) * termcount);
         for(size_t i = 0; i < termcount; i++) {
-            frequencies[i] = listpointer_getFreq(lps[i]);
+            if(lpdocID[i] == docID)
+                frequencies[i] = listpointer_getFreq(lps[i]);
+            else
+                frequencies[i] = 0;
         }
 
         // Compute BM25
@@ -50,6 +68,7 @@ MinHeap* disjunctive_query(char** terms, size_t termcount, Lexicon* lex, PageTab
         listpointer_close(lps[i]);
     }
 
+    free(lpdocID);
     free(lps);
     free(docscontaining);
 

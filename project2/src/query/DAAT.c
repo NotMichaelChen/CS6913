@@ -4,6 +4,10 @@
 #include "listpointer.h"
 
 MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FILE* fp) {
+    if(termcount == 0) {
+        return minheap_new(10);
+    }
+
     //Construct list that determines how many docs contain each term
     uint32_t* docscontaining = malloc(sizeof (uint32_t) * termcount);
     //Construct list pointers

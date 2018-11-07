@@ -72,7 +72,7 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
     size_t blockread = fread(blockcompr, 1, lp->blocksizes[0], fp);
     if(blockread != lp->blocksizes[0]) {
         fprintf(stderr,
-            "Error: block %lu for term %s does not match expected size. %lu read vs %lu expected.",
+            "Error: block %d for term %s does not match expected size. %lu read vs %lu expected.\n",
             0,
             term,
             blockread,
@@ -122,7 +122,7 @@ docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
         size_t blockread = fread(blockcompr, 1, buffersize, lp->fp);
         if(blockread != buffersize) {
             fprintf(stderr,
-                "Error: docID block %lu does not match expected size. %lu read vs %lu expected.",
+                "Error: docID block %lu does not match expected size. %lu read vs %lu expected.\n",
                 lp->blockindex,
                 blockread,
                 buffersize
@@ -159,8 +159,8 @@ freq_t listpointer_getFreq(ListPointer* lp) {
         size_t blockread = fread(blockcompr, 1, lp->blocksizes[(lp->blockindex*2)+1], lp->fp);
         if(blockread != lp->blocksizes[(lp->blockindex*2)+1]) {
             fprintf(stderr,
-                "Error: frequency block %lu does not match expected size. %lu read vs %lu expected.",
-                lp->blockindex+1,
+                "Error: frequency block %lu does not match expected size. %lu read vs %lu expected.\n",
+                lp->blockindex,
                 blockread,
                 lp->blocksizes[(lp->blockindex*2)+1]
             );
@@ -172,6 +172,15 @@ freq_t listpointer_getFreq(ListPointer* lp) {
         lp->freqavailable = true;
     }
 
+    if(lp->docIDindex >= ulongvector_size(lp->freqblock)) {
+        fprintf(stderr,
+            "Error: frequency block %lu not large enough (size: %lu. index: %lu).\n",
+            lp->blockindex,
+            ulongvector_size(lp->freqblock),
+            lp->docIDindex
+        );
+        exit(1);
+    }
     return ulongvector_get(lp->freqblock, lp->docIDindex);
 }
 

@@ -63,6 +63,10 @@ void bytevec_appendRange(ByteVec* vec, uint8_t* bytes, size_t len) {
     vec->size += len;
 }
 
+void bytevec_concat(ByteVec* to, ByteVec* from) {
+    bytevec_appendRange(to, from->buffer, from->size);
+}
+
 uint8_t bytevec_get(ByteVec* vec, size_t pos) {
     return vec->buffer[pos];
 }
