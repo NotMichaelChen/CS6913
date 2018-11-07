@@ -183,6 +183,9 @@ int query(int argc, char* argv[]) {
 
             //Print array
             for(size_t i = 0; i < minheap_len(queryheap); i++) {
+                if(resarr[i].score == 0)
+                    break;
+
                 printf("(%zu) %s\n\tscore: %lf\n\n",
                     i,
                     string_getString(pagetable_geturl(pagetable, resarr[i].docID)),
@@ -201,6 +204,11 @@ int query(int argc, char* argv[]) {
             free(line);
             free(numinput);
         }
+
+        //Free everything
+        lexicon_free(lex);
+        pagetable_free(pagetable);
+        string_free(indexpath);
 
     }
     
