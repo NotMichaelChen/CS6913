@@ -23,8 +23,8 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
     ByteVec* postingdata = bytevec_new();
 
     //TODO: make 128 constant
-    docID_t docIDblock[128];
-    freq_t freqblock[128];
+    uint64_t docIDblock[128];
+    uint64_t freqblock[128];
     size_t blockindex = 0;
 
     for(size_t i = 0; i < ulongvector_size(vec); i += 2) {
@@ -96,7 +96,6 @@ void writePostingData(FILE* fp, Lexicon* lex, ULongVector* vec, String* term) {
     fwrite(lastdocidlen, 1, lastdocidlenlen, fp);
     bytevec_dump(compressedlastdocid, fp);
     bytevec_dump(postingdata, fp);
-
 
     //Free everything
     ulongvector_free(blocksizes);

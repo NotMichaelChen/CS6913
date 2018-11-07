@@ -174,10 +174,11 @@ freq_t listpointer_getFreq(ListPointer* lp) {
 
     if(lp->docIDindex >= ulongvector_size(lp->freqblock)) {
         fprintf(stderr,
-            "Error: frequency block %lu not large enough (size: %lu. index: %lu).\n",
+            "Error: frequency block %lu not large enough (size: %lu, index: %lu, docIDsize: %lu).\n",
             lp->blockindex,
             ulongvector_size(lp->freqblock),
-            lp->docIDindex
+            lp->docIDindex,
+            ulongvector_size(lp->docIDblock)
         );
         exit(1);
     }

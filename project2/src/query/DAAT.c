@@ -3,7 +3,7 @@
 #include "BM25.h"
 #include "listpointer.h"
 
-MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, FILE* fp) {
+MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable, String* indexpath) {
     if(termcount == 0) {
         return minheap_new(10);
     }
@@ -12,12 +12,15 @@ MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable
     uint32_t* docscontaining = malloc(sizeof (uint32_t) * termcount);
     //Construct list pointers
     ListPointer** lps = malloc(sizeof (ListPointer*) * termcount);
+    //Construct a list of all file pointers
+    FILE** fps = malloc(sizeof (FILE*) * termcount);
 
     MinHeap* heap = minheap_new(10);
     
     //Fill lists
     for(size_t i = 0; i < termcount; i++) {
-        lps[i] = listpointer_open(terms[i], lex, fp);
+        fps[i] = fopen(string_getString(indexpath), "rb");
+        lps[i] = listpointer_open(terms[i], lex, fps[i]);
         docscontaining[i] = lexicon_getlistlen(lex, terms[i]);
     }
 
@@ -62,10 +65,12 @@ MinHeap* DAAT(char** terms, size_t termcount, Lexicon* lex, PageTable* pagetable
     }
 
     for(size_t i = 0; i < termcount; i++) {
+        fclose(fps[i]);
         listpointer_close(lps[i]);
     }
 
     free(lps);
+    free(fps);
     free(docscontaining);
 
     return heap;

@@ -14,6 +14,7 @@
 #include "query/DAAT.h"
 #include "michaellib/utility.h"
 #include "query/disjunctive.h"
+#include "compression/varbyte.h"
 
 int indexer(int argc, char* argv[]) {
     if(argc != 5) {
@@ -39,7 +40,7 @@ int indexer(int argc, char* argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        for(int i = 0; i < 100000; i++) {
+        for(int i = 0; i < 10000; i++) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -122,7 +123,6 @@ int query(int argc, char* argv[]) {
 
         String* indexpath = string_newstr(argv[1]);
         string_appendString(indexpath, "/index", 6);
-        FILE* indexfp = fopen(string_getString(indexpath), "rb");
 
         while(1) {
             printf("Enter query terms: ");
@@ -157,7 +157,7 @@ int query(int argc, char* argv[]) {
                     stringvec_len(strvec),
                     lex,
                     pagetable,
-                    indexfp
+                    indexpath
                 );
             }
             else if(res == 2) {
@@ -166,7 +166,7 @@ int query(int argc, char* argv[]) {
                     stringvec_len(strvec),
                     lex,
                     pagetable,
-                    indexfp
+                    indexpath
                 );
             }
             else if(res == 3) {
@@ -191,7 +191,7 @@ int query(int argc, char* argv[]) {
 
                 // Get document and print it out
                 char* document = pagetable_getDocument(pagetable, resarr[i].docID);
-                //util_printSnippet(document, stringvec_getstr(strvec, 0));
+                util_printSnippet(document, stringvec_getstr(strvec, 0));
                 free(document);
             }
 
