@@ -1,6 +1,7 @@
 #include "docparser.h"
 
 #include "lib/uthash.h"
+#include "michaellib/utility.h"
 
 MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
@@ -24,6 +25,7 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
     // Begin tokenizing on whitespace
     char* docwalker = strtok(tempdoc, " \r\n\t");
+    util_lowercase(docwalker);
 
     // Continue tokenizing until there's no more tokens
     size_t tokencount = 0;
@@ -58,6 +60,7 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
         // Tokenize again
         docwalker = strtok(NULL, " \r\n\t");
+        util_lowercase(docwalker);
     }
 
     // Construct the postinglist and allocate enough space to handle all of the

@@ -8,6 +8,12 @@ inline int util_getDigitCount(size_t num) {
     return (num == 0) ? 2 : (sizeof(char)*(int)log10(num))+2;
 }
 
+void util_lowercase(char* str) {
+    for(char* i = str; *i != '\0'; i++) {
+        *i = tolower(*i);
+    }
+}
+
 void util_printSnippet(char* doc, StringVec* terms) {
     size_t doclen = strlen(doc);
 

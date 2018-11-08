@@ -6,6 +6,7 @@
 #include "michaellib/vector/stringvec.h"
 
 int util_getDigitCount(size_t num);
+void util_lowercase(char* str);
 void util_printSnippet(char* doc, StringVec* terms);
 
 // Comparison functions
