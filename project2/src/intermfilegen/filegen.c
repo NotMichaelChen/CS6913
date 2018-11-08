@@ -62,6 +62,12 @@ size_t postinggen_addDoc(PostingGenerator* postinggen, Document doc) {
     // Generate the intermediate posting list from the document
     MemPostingList postinglist = docparser_getPostings(doc, docID);
 
+    // If our posting list buffer is too small, then we return a fatal error
+    if(postinglist.len > postinggen->listsize) {
+        fprintf(stderr, "Error, intermediate postings too large to fit in buffer\n");
+        exit(1);
+    }
+
     // Write out the posting list buffer if there's no more room
     if(postinggen->listindex + postinglist.len > postinggen->listsize) {
         postinggen_flush(postinggen);

@@ -25,11 +25,11 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
     // Begin tokenizing on whitespace
     char* docwalker = strtok(tempdoc, " \r\n\t");
-    util_lowercase(docwalker);
 
     // Continue tokenizing until there's no more tokens
     size_t tokencount = 0;
     while(docwalker != NULL) {
+        util_lowercase(docwalker);
         tokencount++;
         // Get the length of the token/term
         size_t docwalkerlen = strlen(docwalker);
@@ -60,7 +60,6 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
 
         // Tokenize again
         docwalker = strtok(NULL, " \r\n\t");
-        util_lowercase(docwalker);
     }
 
     // Construct the postinglist and allocate enough space to handle all of the
