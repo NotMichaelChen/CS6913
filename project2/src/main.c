@@ -40,7 +40,7 @@ int indexer(int argc, char* argv[]) {
         printf("Generating intermediate files...\n");
     
         // Add documents to the posting generator until there's no more documents
-        for(int i = 0; i < 10000; i++) {
+        for(int i = 0; 1; i++) {
             doc = dirreader_getDocument(reader);
             if(dirreader_getStatus(reader))
                 break;
@@ -194,7 +194,7 @@ int query(int argc, char* argv[]) {
 
                 // Get document and print it out
                 char* document = pagetable_getDocument(pagetable, resarr[i].docID);
-                util_printSnippet(document, stringvec_getstr(strvec, 0));
+                util_printSnippet(document, strvec);
                 free(document);
             }
 

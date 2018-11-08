@@ -8,20 +8,29 @@ inline int util_getDigitCount(size_t num) {
     return (num == 0) ? 2 : (sizeof(char)*(int)log10(num))+2;
 }
 
-void util_printSnippet(char* doc, char* term) {
+void util_printSnippet(char* doc, StringVec* terms) {
     size_t doclen = strlen(doc);
-    size_t termlen = strlen(term);
 
     size_t termloc = 0;
     size_t snippetbegin = 0;
     int snippetlen = 0;
 
-    while(termloc <= doclen - termlen) {
-        //Equal
-        if(!strncmp(doc + termloc, term, termlen))
-            break;
+    size_t termlen = 0;
+    // Loop through every string, looking for the string in the document
+    // Once we find it, break
+    for(size_t i = 0; i < stringvec_len(terms); i++) {
+        termlen = strlen(stringvec_getstr(terms, i));
+        termloc = 0;
+        while(termloc <= doclen - termlen) {
+            //Equal
+            if(!strncmp(doc + termloc, stringvec_getstr(terms, i), termlen))
+                break;
 
-        termloc++;
+            termloc++;
+        }
+
+        if(termloc <= doclen - termlen)
+            break;
     }
 
     //TODO: make constant
