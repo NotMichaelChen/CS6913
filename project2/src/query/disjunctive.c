@@ -30,17 +30,22 @@ MinHeap* disjunctive_query(char** terms, size_t termcount, Lexicon* lex, PageTab
     while(1) {
 
         //Call nextGEQ for each list pointer - keep track of the minimum docID
+        bool somesuccess = false;
         docID_t mindocID = listpointer_nextGEQ(lps[0], docID, &success);
-        if(!success) break;
+        if(!success) mindocID = docID;
+        else somesuccess = true;
         lpdocID[0] = mindocID;
 
         for(size_t i = 1; i < termcount; i++) {
             lpdocID[i] = listpointer_nextGEQ(lps[i], docID, &success);
-            if(!success) break;
+            if(!success) continue;
+            else somesuccess = true;
             if(lpdocID[i] < mindocID)
                 mindocID = lpdocID[i];
         }
-        if(!success) break;
+
+        //No minimum found
+        if(!somesuccess) break;
 
         docID = mindocID;
 
