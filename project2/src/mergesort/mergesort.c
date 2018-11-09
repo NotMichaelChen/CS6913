@@ -76,7 +76,8 @@ int merge(char* directory, char* outputname, size_t buffer) {
         string_appendString(command, outputname, strlen(outputname));
 
         // Call the merge command
-        system(string_getString(command));
+        int res = system(string_getString(command));
+        printf("Merge result returned %d", res);
 
         // Close directory and erase the intermediate files
         closedir(dir);
