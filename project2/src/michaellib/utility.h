@@ -1,12 +1,14 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "michaellib/minheap.h"
 #include "michaellib/vector/stringvec.h"
 
 int util_getDigitCount(size_t num);
-void util_lowercase(char* str);
+// Returns whether the term is valid or not
+bool util_filterTerm(char* str);
 void util_printSnippet(char* doc, StringVec* terms);
 
 // Comparison functions

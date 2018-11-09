@@ -9,10 +9,15 @@ inline int util_getDigitCount(size_t num) {
     return (num == 0) ? 2 : (sizeof(char)*(int)log10(num))+2;
 }
 
-void util_lowercase(char* str) {
+bool util_filterTerm(char* str) {
     for(char* i = str; *i != '\0'; i++) {
+        if(!isalnum(*i))
+            return false;
+
         *i = tolower(*i);
     }
+
+    return true;
 }
 
 void util_printSnippet(char* doc, StringVec* terms) {

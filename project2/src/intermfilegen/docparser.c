@@ -23,13 +23,17 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
     char* tempdoc = malloc(doc.docsize + 1);
     strcpy(tempdoc, doc.doc);
 
-    // Begin tokenizing on whitespace
-    char* docwalker = strtok(tempdoc, " \r\n\t");
+    // Begin tokenizing on nonalphanumerics
+    char* docwalker = strtok(tempdoc, " \r\n\t!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
 
     // Continue tokenizing until there's no more tokens
     size_t tokencount = 0;
     while(docwalker != NULL) {
-        util_lowercase(docwalker);
+        if(!util_filterTerm(docwalker)) {
+            docwalker = strtok(NULL, " \r\n\t!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+            continue;
+        }
+
         tokencount++;
         // Get the length of the token/term
         size_t docwalkerlen = strlen(docwalker);
@@ -59,7 +63,7 @@ MemPostingList docparser_getPostings(Document doc, docID_t docID) {
         }
 
         // Tokenize again
-        docwalker = strtok(NULL, " \r\n\t");
+        docwalker = strtok(NULL, " \r\n\t!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
     }
 
     // Construct the postinglist and allocate enough space to handle all of the
