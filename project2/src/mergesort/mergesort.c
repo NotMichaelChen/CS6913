@@ -41,7 +41,9 @@ void eraseIntermediates(char* directory, char* outputname) {
 int merge(char* directory, char* outputname, size_t buffer) {
     String* dirstr = string_newstr(directory);
     // Create the command
-    String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n -S ");
+    String* command = string_newstr("LC_ALL=C sort -m -k1,1 -k2n -T \"");
+    string_appendString(command, string_getString(dirstr), string_getLen(dirstr));
+    string_appendString(command, "\" -S ", 5);
     
     // Add the buffer size argument to the merge command
     //64-bit number = 19 chars, null terminator, "b", space. Sums up to 22 bytes
@@ -78,7 +80,7 @@ int merge(char* directory, char* outputname, size_t buffer) {
 
         // Close directory and erase the intermediate files
         closedir(dir);
-        eraseIntermediates(directory, outputname);
+        //eraseIntermediates(directory, outputname);
     }
     else {
         string_free(dirstr);

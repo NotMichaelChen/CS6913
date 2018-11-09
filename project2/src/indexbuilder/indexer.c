@@ -190,7 +190,7 @@ Lexicon* block_buildIndex(char* dir, char* input, char* output) {
     fclose(ifp);
     fclose(ofp);
 
-    remove(inputfilename);
+    //remove(inputfilename);
 
     free(inputfilename);
     free(outputfilename);
