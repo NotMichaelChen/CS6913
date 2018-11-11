@@ -113,13 +113,25 @@ int query(int argc, char* argv[]) {
         FILE* tablefp = fopen(string_getString(tablepath), "rb");
         string_free(tablepath);
 
+        struct timeval t1, t2;
+        double elapsedtime;
+        gettimeofday(&t1, NULL);
+
         printf("Loading lexicon...\n");
         lexicon_read(lex, lexfp);
         fclose(lexfp);
 
-        printf("Loading page table...\n");
+        gettimeofday(&t2, NULL);
+        elapsedtime = (t2.tv_sec - t1.tv_sec);
+
+        printf("Loading page table... (%fs)\n", elapsedtime);
         pagetable_read(pagetable, tablefp);
         fclose(tablefp);
+
+        gettimeofday(&t2, NULL);
+        elapsedtime = (t2.tv_sec - t1.tv_sec);
+
+        printf("Finished loading (%fs)\n", elapsedtime);
 
         String* indexpath = string_newstr(argv[1]);
         string_appendString(indexpath, "/index", 6);
@@ -183,8 +195,11 @@ int query(int argc, char* argv[]) {
 
             //Print array
             for(size_t i = 0; i < minheap_len(queryheap); i++) {
-                if(resarr[i].score == 0)
+                if(resarr[i].score == 0) {
+                    if(i == 0)
+                        printf("No results found\n");
                     break;
+                }
 
                 printf("(%zu) %s\n\tscore: %lf\n\n",
                     i,
@@ -206,6 +221,7 @@ int query(int argc, char* argv[]) {
         }
 
         //Free everything
+        printf("Cleaning up...\n");
         lexicon_free(lex);
         pagetable_free(pagetable);
         string_free(indexpath);

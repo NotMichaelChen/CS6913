@@ -27,10 +27,12 @@ struct ListPointer {
     //other
     size_t blockposition;
     bool freqavailable;
+    bool isValid;
 };
 
 ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
-    ListPointer* lp = malloc(sizeof (ListPointer));
+    ListPointer* lp = calloc(1, sizeof (ListPointer));
+    lp->isValid = true;
     lp->fp = fp;
 
     // Get lexicon data
@@ -42,13 +44,8 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
     uint8_t* metacompr = malloc(metalen);
     size_t metaread = fread(metacompr, 1, metalen, fp);
     if(metaread != metalen) {
-        fprintf(stderr,
-            "Error: metadata read for term %s does not match stored metadata. %lu read vs %lu expected.\n",
-            term,
-            metaread,
-            metalen
-        );
-        exit(1);
+        lp->isValid = false;
+        return lp;
     }
 
     // Decompress metadata
@@ -71,14 +68,8 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
     uint8_t* blockcompr = malloc(lp->blocksizes[0]);
     size_t blockread = fread(blockcompr, 1, lp->blocksizes[0], fp);
     if(blockread != lp->blocksizes[0]) {
-        fprintf(stderr,
-            "Error: block %d for term %s does not match expected size. %lu read vs %lu expected.\n",
-            0,
-            term,
-            blockread,
-            lp->blocksizes[0]
-        );
-        exit(1);
+        lp->isValid = false;
+        return lp;
     }
 
     lp->docIDblock = varbyte_decodeStream(blockcompr, lp->blocksizes[0]);
@@ -99,6 +90,11 @@ ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
 docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
     *success = true;
 
+    if(!lp->isValid) {
+        *success = false;
+        return -1;
+    }
+
     size_t oldblockindex = lp->blockindex;
     //Find the correct block to look at
     while(lp->blockindex < lp->lastdocidlen && lp->lastdocid[lp->blockindex] < docID) {
@@ -108,8 +104,9 @@ docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
         ++lp->blockindex;
     }
     if(lp->blockindex == lp->lastdocidlen) {
+        lp->isValid = false;
         *success = false;
-        return 0;
+        return -1;
     }
 
     //If it's different than our current block then decompress new block
@@ -143,8 +140,9 @@ docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
         ++lp->docIDindex;
 
     if(lp->docIDindex == ulongvector_size(lp->docIDblock)) {
+        lp->isValid = false;
         *success = false;
-        return 0;
+        return -1;
     }
     
     return ulongvector_get(lp->docIDblock, lp->docIDindex);
