@@ -31,6 +31,7 @@ struct ListPointer {
 };
 
 ListPointer* listpointer_open(char* term, Lexicon* lex, FILE* fp) {
+    //Use calloc to set all pointers to null
     ListPointer* lp = calloc(1, sizeof (ListPointer));
     lp->isValid = true;
     lp->fp = fp;
@@ -149,6 +150,9 @@ docID_t listpointer_nextGEQ(ListPointer* lp, docID_t docID, bool* success) {
 }
 
 freq_t listpointer_getFreq(ListPointer* lp) {
+    if(!lp->isValid)
+        return -1;
+
     if(!lp->freqavailable) {
         if(lp->freqblock != NULL)
             ulongvector_free(lp->freqblock);
